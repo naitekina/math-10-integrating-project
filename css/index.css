@@ -18,7 +18,7 @@ html, body {
     padding: 5vh;
 
     background-color: black;
-    display: none;
+    /* display: none; */
 
     color: white;
     text-align: center;
@@ -37,7 +37,7 @@ html, body {
     padding: 5vh;
 
     background-color: black;
-    display: none;
+    /* display: none; */
 
     color: white;
     text-align: center;
