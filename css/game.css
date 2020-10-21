@@ -11,6 +11,7 @@
 
 #opponent-position {
     min-width: 150px;
+    max-width: 80%;
     width: 40vh;
     min-height: 150px;
     height: 40vh;
@@ -37,12 +38,13 @@
 
 #player-position {
     min-width: 400px;
-    width: 40vw;
+    max-width: 85%;
+    width: 80vh;
     min-height: 200px;
     height: 40vh;
 
     position: absolute;
-    left: 10%;
+    left: 7.5%;
     bottom: 7.5%;
 
     background-color: green;
