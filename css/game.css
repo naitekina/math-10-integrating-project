@@ -1,6 +1,6 @@
 #actions {
     width: 100%;
-    height: 150px;
+    height: 20vh;
 
     position: absolute;
     bottom: 0;
@@ -10,45 +10,53 @@
 }
 
 #opponent-position {
-    width: 200px;
-    height: 200px;
+    min-width: 150px;
+    width: 17.5vw;
+    min-height: 150px;
+    height: 17.5vw;
 
     position: absolute;
     right: 10%;
-    top: 100px;
+    top: 5%;
 
     background-color: red;
 }
 
 #opponent-info {
-    width: 250px;
+    min-width: 300px;
+    width: 30vw;
     height: 50px;
 
     position: absolute;
     left: 0;
-    top: 150px;
+    top: 17.5vh;
+    z-index: 4;
 
     background-color: grey;
 }
 
 #player-position {
-    width: 200px;
-    height: 200px;
+    min-width: 400px;
+    width: 40vw;
+    min-height: 200px;
+    height: 20vw;
 
     position: absolute;
     left: 10%;
-    bottom: 100px;
+    bottom: 7.5%;
 
     background-color: green;
 }
 
 #player-info {
-    width: 250px;
+    min-width: 300px;
+    width: 30vw;
     height: 50px;
 
     position: absolute;
     right: 0;
-    bottom: 150px;
+    bottom: 22.5vh;
+    z-index: 4;
 
     background-color: grey;
 }
