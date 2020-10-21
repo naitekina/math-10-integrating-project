@@ -12,7 +12,7 @@
 #opponent-position {
     min-width: 150px;
     max-width: 80%;
-    width: 40vh;
+    width: 80vh;
     min-height: 150px;
     height: 40vh;
 
@@ -24,9 +24,10 @@
 }
 
 #opponent-info {
-    min-width: 300px;
-    width: 30vw;
-    height: 50px;
+    max-width: 60vw;
+    width: 60vh;
+    max-height: 7.5vh;
+    height: 10vw;
 
     position: absolute;
     left: 0;
@@ -51,9 +52,10 @@
 }
 
 #player-info {
-    min-width: 300px;
-    width: 30vw;
-    height: 50px;
+    max-width: 60vw;
+    width: 60vh;
+    max-height: 7.5vh;
+    height: 10vw;
 
     position: absolute;
     right: 0;
