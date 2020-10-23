@@ -28,69 +28,15 @@
     background-color: white;
 }
 
-#actions {
-    width: 100%;
-    height: 20vh;
 
-    position: absolute;
-    bottom: 0;
-    z-index: 5;
+#game-top, #game-bot {
+    margin: auto auto;
 
-    background-color: rgba(127, 127, 127, 0.5);
-}
+    box-sizing: border-box;
+    height: 50vh;
 
-#opponent-position {
-    min-width: 150px;
-    max-width: 80%;
-    width: 80vh;
-    min-height: 150px;
-    height: 40vh;
+    border: 1px solid black;
+    display: block;
 
-    position: absolute;
-    right: 10%;
-    top: 5%;
-
-    background-color: red;
-}
-
-#opponent-info {
-    max-width: 60vw;
-    width: 60vh;
-    max-height: 7.5vh;
-    height: 10vw;
-
-    position: absolute;
-    left: 0;
-    top: 17.5vh;
-    z-index: 4;
-
-    background-color: grey;
-}
-
-#player-position {
-    min-width: 400px;
-    max-width: 85%;
-    width: 80vh;
-    min-height: 200px;
-    height: 40vh;
-
-    position: absolute;
-    left: 7.5%;
-    bottom: 7.5%;
-
-    background-color: green;
-}
-
-#player-info {
-    max-width: 60vw;
-    width: 60vh;
-    max-height: 7.5vh;
-    height: 10vw;
-
-    position: absolute;
-    right: 0;
-    bottom: 22.5vh;
-    z-index: 4;
-
-    background-color: grey;
+    image-rendering: pixelated;
 }
