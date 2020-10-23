@@ -1,5 +1,34 @@
 @import "./game.css";
 
+/* DEFAULT, GENERAL */
+@font-face {
+    font-family: "Pixelade";
+    src: url("./../font/PIXELADE.TTF");
+}
+
+@font-face {
+    font-family: "Pixelmix";
+    src: url("./../font/pixelmix.ttf");
+}
+
+/* NAME, HP */
+@font-face {
+    font-family: "Fipps";
+    src: url("./../font/Fipps-Regular.otf");
+}
+
+@font-face {
+    font-family: "FatalFury";
+    src: url("./../font/m04.TTF");
+}
+
+/* ACTIONS */
+@font-face {
+    font-family: "PixelOperatorBold";
+    src: url("./../font/PixelOperator-Bold.ttf");
+}
+
+
 html, body {
     margin: 0;
     padding: 0;
@@ -18,7 +47,7 @@ html, body {
     padding: 5vh;
 
     background-color: black;
-    /* display: none; */
+    display: none;
 
     color: white;
     text-align: center;
@@ -41,4 +70,14 @@ html, body {
 
     color: white;
     text-align: center;
+}
+
+#story-text {
+    font-family: "Pixelade";
+}
+
+#game-screen {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
 }
