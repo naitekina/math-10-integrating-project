@@ -22,11 +22,11 @@ function loadTextures() {
 
         textures.battleFoeBox = new Image();
         textures.battleFoeBox.onload = onLoadedFunction;
-        textures.battleFoeBox.src = "./img/game/battleFoeBoxD.png";
+        textures.battleFoeBox.src = "./img/game/battleFoeBoxD_noFade.png";
 
         textures.battlePlayerBox = new Image();
         textures.battlePlayerBox.onload = onLoadedFunction;
-        textures.battlePlayerBox.src = "./img/game/battlePlayerBoxD.png";
+        textures.battlePlayerBox.src = "./img/game/battlePlayerBoxD_noFade.png";
     } catch(error) {
         console.log(error);
     }
