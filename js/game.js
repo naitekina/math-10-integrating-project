@@ -1,5 +1,7 @@
-var canvas = null;
-var ctx = null;
+var canvas_top = null;
+var ctx_top = null;
+var canvas_bot = null;
+var ctx_bot = null;
 
 var frameDrawer = null;
 
@@ -17,8 +19,15 @@ var textures = {
 
 function loadTextures() {
     try {
-        canvas = document.getElementById("game-top");
-        ctx = canvas.getContext("2d");
+        canvas_top = document.getElementById("game-top");
+        ctx_top = canvas_top.getContext("2d");
+
+        canvas_bot = document.getElementById("game-bot");
+        ctx_bot = canvas_bot.getContext("2d");
+
+        canvas_bot.addEventListener("click", function(e) {
+            handleClick(e);
+        });
 
         textures.battleFoeBox = new Image();
         textures.battleFoeBox.onload = onLoadedFunction;
@@ -39,8 +48,11 @@ function drawFrame() {
 
         // ctx.clearRect(0, 0, canvas.width, canvas.height);
         // clear = fill white
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx_top.fillStyle = "#ffffff";
+        ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
+
+        ctx_bot.fillStyle = "#ffffff";
+        ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
 
         drawOpponentInfo();
         drawPlayerInfo();
@@ -51,7 +63,7 @@ function drawFrame() {
 
 function drawOpponentInfo() {
     // background sprite
-    ctx.drawImage(textures.battleFoeBox, -32, 32);
+    ctx_top.drawImage(textures.battleFoeBox, -32, 32);
 
     // name
 
@@ -64,7 +76,7 @@ function drawOpponentInfo() {
 
 function drawPlayerInfo() {
     // background sprite
-    ctx.drawImage(textures.battlePlayerBox, canvas.width - 260, 192);
+    ctx_top.drawImage(textures.battlePlayerBox, canvas_top.width - 260, 192);
 
     // name
 
@@ -73,4 +85,11 @@ function drawPlayerInfo() {
     // level number
 
     // hp
+}
+
+function handleClick(e) {
+    var x = e.pageX - (canvas_bot.offsetLeft + canvas_bot.clientLeft);
+    var y = e.pageY - (canvas_bot.offsetTop + canvas_bot.clientTop);
+
+    // alert("x:" + x + ", y:" + y + " || width:" + canvas_bot.offsetWidth + ", height:" + canvas_bot.offsetHeight);
 }
