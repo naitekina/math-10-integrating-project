@@ -3,7 +3,7 @@ function story(mode) {
 }
 
 function startGame() {
-    $("#story").fadeOut(500);
+    // $("#story").fadeOut(500);
 
     loadTextures();
 
