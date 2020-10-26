@@ -1,9 +1,10 @@
 const MODE = {
-    BLACK: 0,
-    DEFAULT: 1,
-    BASE: 2,
-    MAIN: 3,
-    FIGHT: 4
+    LOADING: 0,
+    BLACK: 1,
+    DEFAULT: 2,
+    BASE: 3,
+    MAIN: 4,
+    FIGHT: 5
 };
 
 const SEX = {
@@ -12,7 +13,12 @@ const SEX = {
 };
 
 
-const FONT_NAME_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const FONT_ALPHANUM_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+const FONT_ALPHANUM_SIZES = [
+    10,10,10,10,10, 10,10,10, 6,10, 10,10,10,10,10, 10,10,10,10,10, 10,10,10,10,10, 10,
+    10,10,10,10,10, 10,10,10, 6,10, 10, 8,10,10,10, 10,10,10,10,10, 10,10,10,10,10, 10,
+    10, 8,10,10,10, 10,10,10,10,10
+];
 const FONT_LEVEL_CHARS = "0123456789";
 
 
@@ -34,7 +40,7 @@ const POSITIONS = {
             relPosT: -6
         }, level: {
             relPosL: 186,
-            relPosT: -2
+            relPosT: -4
         }, hpBar: {
             relPosL: 88,
             // relPosR_L: 184,
@@ -51,23 +57,22 @@ const POSITIONS = {
         posR: 0,
         posT: 200,
         name: {
-            // 14 base
             relPosL: 24,
             relPosT: -4
         }, level: {
             relPosL: 178,
-            relPosT: -2
+            relPosT: -4
         }, hpBar: {
             relPosL: 112,
             relPosT: 18,
             w: 96,
             h: 4
         }, hpNum: {
-            relPosT: 24, //26-38
+            relPosT: 24,
             hp: {
-                relPosL_End: 160 // minus
+                relPosL_End: 160
             }, total: {
-                relPosL: 176 // add
+                relPosL: 176
             }
         }, expBar: {
             relPosL: 64,

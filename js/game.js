@@ -5,7 +5,7 @@ var ctx_bot = null;
 
 var frameDrawer = null; // interval
 
-var CMODE = 0; // mode of the game
+var CMODE = MODE.BLACK; // mode of the game
 
 var textures = {
     defaultBG: null,
@@ -15,8 +15,8 @@ var textures = {
     battleBGFight: null,
 
     sex: null,
-    battleFontName: null,
-    battleFontLevel: null,
+    battleFontAlphanum: null,
+    battleFontHp: null,
 
     battleBG: null,
     battleBase: null,
@@ -51,33 +51,33 @@ function loadTextures() {
 
         textures.defaultBG = new Image();
         textures.defaultBG.onload = onLoadedFunction;
-        textures.defaultBG.src = "./img/game/defaultBG.png";
+        textures.defaultBG.src = "./img/game/bottom/defaultBG.png";
 
 
         textures.battleBGBase = new Image();
         textures.battleBGBase.onload = onLoadedFunction;
-        textures.battleBGBase.src = "./img/game/battleBGBase.png";
+        textures.battleBGBase.src = "./img/game/bottom/battleBGBase.png";
 
         textures.battleBGFight = new Image();
         textures.battleBGFight.onload = onLoadedFunction;
-        textures.battleBGFight.src = "./img/game/battleBGFight.png";
+        textures.battleBGFight.src = "./img/game/bottom/battleBGFight.png";
 
         textures.battleBGMain = new Image();
         textures.battleBGMain.onload = onLoadedFunction;
-        textures.battleBGMain.src = "./img/game/battleBGMain.png";
+        textures.battleBGMain.src = "./img/game/bottom/battleBGMain.png";
 
 
         textures.sex = new Image();
         textures.sex.onload = onLoadedFunction;
         textures.sex.src = "./img/game/sex.png";
 
-        textures.battleFontName = new Image();
-        textures.battleFontName.onload = onLoadedFunction;
-        textures.battleFontName.src = "./img/game/font_name.png";
+        textures.battleFontAlphanum = new Image();
+        textures.battleFontAlphanum.onload = onLoadedFunction;
+        textures.battleFontAlphanum.src = "./img/game/font/font_alphanum.png";
 
-        textures.battleFontLevel = new Image();
-        textures.battleFontLevel.onload = onLoadedFunction;
-        textures.battleFontLevel.src = "./img/game/font_level.png";
+        textures.battleFontHp = new Image();
+        textures.battleFontHp.onload = onLoadedFunction;
+        textures.battleFontHp.src = "./img/game/font/font_hp.png";
 
 
         textures.battleBG = new Image();
@@ -181,7 +181,7 @@ function drawOpponentInfo() {
     ctx_top.drawImage(textures.battleFoeBox, POSITIONS.battleFoeBox.posL, POSITIONS.battleFoeBox.posT);
 
     // name
-    drawText_Name(
+    drawText(
         "Sir Calvin",
         POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.name.relPosL, 
         POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.name.relPosT);
@@ -193,8 +193,8 @@ function drawOpponentInfo() {
         POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.sex.relPosT);
 
     // level number
-    drawText_Num(
-        100,
+    drawText(
+        "100",
         POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.level.relPosL,
         POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.level.relPosT);
 
@@ -213,14 +213,14 @@ function drawPlayerInfo() {
     ctx_top.drawImage(textures.battlePlayerBox, posX, POSITIONS.battlePlayerBox.posT);
 
     // name
-    drawText_Name(
+    drawText(
         "Group Four",
         posX + POSITIONS.battlePlayerBox.name.relPosL,
         POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.name.relPosT);
 
     // level number
-    drawText_Num(
-        25,
+    drawText(
+        "25",
         posX + POSITIONS.battlePlayerBox.level.relPosL,
         POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.level.relPosT);
 
@@ -233,7 +233,7 @@ function drawPlayerInfo() {
         100,
         posX + POSITIONS.battlePlayerBox.hpNum.hp.relPosL_End,
         POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpNum.relPosT);
-    drawText_Num(
+    drawText_HPTotal(
         100,
         posX + POSITIONS.battlePlayerBox.hpNum.total.relPosL,
         POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpNum.relPosT);
@@ -246,16 +246,17 @@ function drawPlayerInfo() {
 /*
 * TEXT
 */
-function drawText_Name(text, x, canvasY) {
+function drawText(text, x, canvasY) {
     var canvasX = x;
 
     for(var i = 0; i < text.length; i++) {
-        var iX = FONT_NAME_CHARS.indexOf(text[i]);
+        var iA = FONT_ALPHANUM_CHARS.indexOf(text[i]);
+        var iX = iA;
         var iY = 0;
         
         if(iX >= 26) {
-            iX -= 26;
-            iY = 1;
+            iX -= 26 * Math.floor(iA / 26);
+            iY = Math.floor(iA / 26);
         }
 
         // char is 5x9, with space: 6x10;
@@ -265,12 +266,12 @@ function drawText_Name(text, x, canvasY) {
             continue;
         }
 
-        ctx_top.drawImage(textures.battleFontName, iX * 12, iY * 20, 10, 18, canvasX, canvasY, 10, 18);
-        canvasX += 10;
+        ctx_top.drawImage(textures.battleFontAlphanum, iX * 12, iY * 20, 10, 18, canvasX, canvasY, 10, 18);
+        canvasX += FONT_ALPHANUM_SIZES[iA];
     }
 }
 
-function drawText_Num(level, x, canvasY) {
+function drawText_HPTotal(level, x, canvasY) {
     var text = level.toString();
     var canvasX = x;
 
@@ -280,7 +281,7 @@ function drawText_Num(level, x, canvasY) {
         // char is 16x16 with space
         if(iX == -1) continue;
 
-        ctx_top.drawImage(textures.battleFontLevel, iX * 16, 0, 16, 16, canvasX, canvasY, 16, 16);
+        ctx_top.drawImage(textures.battleFontHp, iX * 16, 0, 16, 16, canvasX, canvasY, 16, 16);
         canvasX += 16;
     }
 }
@@ -288,7 +289,7 @@ function drawText_Num(level, x, canvasY) {
 function drawText_HPNum(hp, x, canvasY) {
     var text = hp.toString();
     
-    drawText_Num(hp, x - (text.length * 16), canvasY);
+    drawText_HPTotal(hp, x - (text.length * 16), canvasY);
 }
 
 function drawSex(s, canvasX, canvasY) {
