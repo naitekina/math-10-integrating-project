@@ -1,15 +1,27 @@
-const MODE = {
+const DRAWMODE = {
     LOADING: 0,
     BLACK: 1,
-    DEFAULT: 2,
-    BASE: 3,
-    MAIN: 4,
-    FIGHT: 5
-};
 
-const SEX = {
-    MALE: 0,
-    FEMALE: 2
+    STORY_HOOD_TP: 10,
+    STORY_HOOD_FADE: 11,
+    STORY_HOOD_SPOTLIGHT_1: 12,
+    STORY_FEATURE: 13,
+    STORY_HOOD_SPOTLIGHT_2: 14,
+    STORY_HUDDLE: 15,
+    STORY_CRASH: 16,
+    STORY_APPEAR: 17,
+
+    BATTLE_VS: 20,
+    BATTLE_DEFAULT: 21,
+    BATTLE_MAIN: 22,
+    BATTLE_FIGHT: 23,
+    BATTLE_QUESTION: 24,
+    BATTLE_FOCUS_PLAYER: 25,
+    BATTLE_FOCUS_FOE: 26,
+
+    POST_EPILOGUE: 30,
+    POST_CREDITS: 31,
+    POST_FINAL: 32
 };
 
 
@@ -21,13 +33,22 @@ const FONT_ALPHANUM_SIZES = [
 ];
 const FONT_LEVEL_CHARS = "0123456789";
 
+const SEX = {
+    MALE: 0,
+    FEMALE: 2
+};
+
 
 const POSITIONS = {
-    messageBar: {
+    messageBox: {
         posB_Top: 100,
         height: 88,
         border: {
             height: 2
+        }, text: {
+            size: 32,
+            marginLR: 16,
+            marginMid: 16,
         }
     }, battleFoeBox: {
         posL: 0,
@@ -86,3 +107,10 @@ const POSITIONS = {
         scale: 1.25
     }
 };
+
+const HPBARCOLOR = [
+    ["#ffffff", "#b5b5b5"],
+    ["#00ff4a", "#00bd21"],
+    ["#eaff00", "#adbd00"],
+    ["#ff0000", "#bd0000"]
+];
