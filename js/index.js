@@ -1,3 +1,11 @@
+function setRandomIcon() {
+    var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.type = 'image/x-icon';
+    link.rel = 'icon';
+    link.href = './img/icon/item' + (264 + Math.floor(Math.random() * 24)) + '.png';
+    document.getElementsByTagName('head')[0].appendChild(link);
+}
+
 function story(mode) {
     $("#main-screen").fadeOut(500);
 }
