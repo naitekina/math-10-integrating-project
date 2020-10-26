@@ -18,6 +18,9 @@ var textures = {
     battleFontName: null,
     battleFontLevel: null,
 
+    battleBG: null,
+    battleBase: null,
+
     battleFoeBox: null,
     battlePlayerBox: null
 };
@@ -77,6 +80,15 @@ function loadTextures() {
         textures.battleFontLevel.src = "./img/game/font_level.png";
 
 
+        textures.battleBG = new Image();
+        textures.battleBG.onload = onLoadedFunction;
+        textures.battleBG.src = "./img/game/elite8_bg.png";
+
+        textures.battleBase = new Image();
+        textures.battleBase.onload = onLoadedFunction;
+        textures.battleBase.src = "./img/game/elite8_base.png";
+
+
         textures.battleFoeBox = new Image();
         textures.battleFoeBox.onload = onLoadedFunction;
         textures.battleFoeBox.src = "./img/game/battleFoeBox.png";
@@ -103,8 +115,11 @@ function drawFrame() {
         ctx_bot.fillStyle = "#ffffff";
         ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
 
+        drawBattleBG();
 
+        drawOpponentBase();
         drawOpponentInfo();
+        drawPlayerBase();
         drawPlayerInfo();
 
         drawMessageBar();
@@ -123,6 +138,42 @@ function handleClick(e) {
     alert("x:" + x + ", y:" + y + " || width:" + canvas_bot.offsetWidth + ", height:" + canvas_bot.offsetHeight);
 }
 
+
+function drawBattleBG() {
+    ctx_top.restore();
+
+    ctx_top.drawImage(textures.battleBG, 0, 0, canvas_top.width, canvas_top.height);
+}
+
+/*
+* BASE
+*/
+function drawOpponentBase() {
+    ctx_top.restore();
+
+    ctx_top.drawImage(
+        textures.battleBase,
+        canvas_top.width - (textures.battleBase.width * POSITIONS.battleFoeBase.scale) - POSITIONS.battleFoeBase.posR,
+        POSITIONS.battleFoeBase.posT,
+        textures.battleBase.width * POSITIONS.battleFoeBase.scale,
+        textures.battleBase.height * POSITIONS.battleFoeBase.scale);
+}
+
+function drawPlayerBase() {
+    ctx_top.restore();
+
+    ctx_top.drawImage(
+        textures.battleBase,
+        POSITIONS.battlePlayerBase.posL,
+        canvas_top.height - POSITIONS.battlePlayerBase.posB,
+        textures.battleBase.width * POSITIONS.battlePlayerBase.scale,
+        textures.battleBase.height * POSITIONS.battlePlayerBase.scale);
+}
+
+
+/*
+* INFO
+*/
 function drawOpponentInfo() {
     ctx_top.restore();
 
@@ -130,13 +181,22 @@ function drawOpponentInfo() {
     ctx_top.drawImage(textures.battleFoeBox, POSITIONS.battleFoeBox.posL, POSITIONS.battleFoeBox.posT);
 
     // name
-    drawText_Name("Sir Calvin", POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.name.relPosL, POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.name.relPosT);
+    drawText_Name(
+        "Sir Calvin",
+        POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.name.relPosL, 
+        POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.name.relPosT);
 
     // sex
-    drawSex(SEX.MALE, POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.sex.relPosL, POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.sex.relPosT);
+    drawSex(
+        SEX.MALE,
+        POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.sex.relPosL,
+        POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.sex.relPosT);
 
     // level number
-    drawText_Num(100, POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.level.relPosL, POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.level.relPosT);
+    drawText_Num(
+        100,
+        POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.level.relPosL,
+        POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.level.relPosT);
 
     // hp bar
     ctx_top.fillStyle = "#00ff00";
@@ -153,23 +213,39 @@ function drawPlayerInfo() {
     ctx_top.drawImage(textures.battlePlayerBox, posX, POSITIONS.battlePlayerBox.posT);
 
     // name
-    drawText_Name("Group Four", posX + POSITIONS.battlePlayerBox.name.relPosL, POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.name.relPosT);
+    drawText_Name(
+        "Group Four",
+        posX + POSITIONS.battlePlayerBox.name.relPosL,
+        POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.name.relPosT);
 
     // level number
-    drawText_Num(25, posX + POSITIONS.battlePlayerBox.level.relPosL, POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.level.relPosT);
+    drawText_Num(
+        25,
+        posX + POSITIONS.battlePlayerBox.level.relPosL,
+        POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.level.relPosT);
 
     // hp bar
     ctx_top.fillStyle = "#00ff00";
     ctx_top.fillRect(posX + POSITIONS.battlePlayerBox.hpBar.relPosL, POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpBar.relPosT, POSITIONS.battlePlayerBox.hpBar.w, POSITIONS.battlePlayerBox.hpBar.h);
 
     // hp num
-    drawText_HPNum(100, posX + POSITIONS.battlePlayerBox.hpNum.hp.relPosL_End, POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpNum.relPosT);
-    drawText_Num(100, posX + POSITIONS.battlePlayerBox.hpNum.total.relPosL, POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpNum.relPosT);
+    drawText_HPNum(
+        100,
+        posX + POSITIONS.battlePlayerBox.hpNum.hp.relPosL_End,
+        POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpNum.relPosT);
+    drawText_Num(
+        100,
+        posX + POSITIONS.battlePlayerBox.hpNum.total.relPosL,
+        POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpNum.relPosT);
 
     // exp bar
     ctx_top.fillRect(posX + POSITIONS.battlePlayerBox.expBar.relPosL, POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.expBar.relPosT, POSITIONS.battlePlayerBox.expBar.w, POSITIONS.battlePlayerBox.expBar.h);
 }
 
+
+/*
+* TEXT
+*/
 function drawText_Name(text, x, canvasY) {
     var canvasX = x;
 
@@ -221,17 +297,31 @@ function drawSex(s, canvasX, canvasY) {
     ctx_top.drawImage(textures.sex, s * 16, 0, 14, 20, canvasX, canvasY, 14, 20);
 }
 
+
+
 function drawMessageBar() {
     ctx_top.restore();
 
     // transparent background black
     ctx_top.fillStyle = "rgba(0, 0, 0, 0.5)";
-    ctx_top.fillRect(0, canvas_top.height - 100, canvas_top.width, 80);
+    ctx_top.fillRect(
+        0,
+        canvas_top.height - POSITIONS.messageBar.posB_Top,
+        canvas_top.width,
+        POSITIONS.messageBar.height);
 
     // transparent border red
     ctx_top.fillStyle = "rgba(127, 0, 0, 0.5)";
-    ctx_top.fillRect(0, canvas_top.height - 100 - 2, canvas_top.width, 2);
-    ctx_top.fillRect(0, canvas_top.height - 100 + 80, canvas_top.width, 2);
+    ctx_top.fillRect(
+        0,
+        canvas_top.height - POSITIONS.messageBar.posB_Top - POSITIONS.messageBar.border.height,
+        canvas_top.width,
+        POSITIONS.messageBar.border.height);
+    ctx_top.fillRect(
+        0,
+        canvas_top.height - POSITIONS.messageBar.posB_Top + POSITIONS.messageBar.height,
+        canvas_top.width,
+        POSITIONS.messageBar.border.height);
 
     // text
     ctx_top.font = "32px PixelOperatorBold";
@@ -239,6 +329,7 @@ function drawMessageBar() {
     var message = "What will you do?";
     ctx_top.fillText(message, 16, canvas_top.height - 100 + 32);
 }
+
 
 function drawBottomBackground() {
     ctx_bot.restore();

@@ -17,7 +17,13 @@ const FONT_LEVEL_CHARS = "0123456789";
 
 
 const POSITIONS = {
-    battleFoeBox: {
+    messageBar: {
+        posB_Top: 100,
+        height: 88,
+        border: {
+            height: 2
+        }
+    }, battleFoeBox: {
         posL: 0,
         posT: 56,
         name: {
@@ -37,6 +43,10 @@ const POSITIONS = {
             w: 96,
             h: 4
         }
+    }, battleFoeBase: {
+        posR: -16,
+        posT: 72,
+        scale: 0.5
     }, battlePlayerBox: {
         posR: 0,
         posT: 200,
@@ -65,5 +75,9 @@ const POSITIONS = {
             w: 160,
             h: 2
         }
+    }, battlePlayerBase: {
+        posL: -104,
+        posB: 224,
+        scale: 1.25
     }
 };
