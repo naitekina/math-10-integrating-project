@@ -28,24 +28,13 @@
     background-color: white;
 }
 
-#nintendoDS > img {
-    max-width: 95vw;
-    height: 95vh;
-    object-fit: contain;
-
-    margin: 2.5vh auto;
-
-    display: block;
-}
-
-
 #game-top, #game-bot {
     box-sizing: border-box;
     max-width: 97.5vw;
     height: 47.5vh;
     object-fit: contain;
 
-    border: 1px solid black;
+    /* border: 1px solid black; */
     display: block;
 
     image-rendering: pixelated;
