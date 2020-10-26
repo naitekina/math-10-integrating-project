@@ -15,6 +15,7 @@ function startGame() {
 
     loadTextures();
 
+    frameNum = 0;
     frameDrawer = setInterval(drawFrame, 1000 / 30);
 }
 
@@ -23,3 +24,8 @@ function stopGame() {
 }
 
 // https://www.reddit.com/r/pokemonzetaomicron/comments/1xbnoi/black_white_texture_pack_updated/
+
+
+function transitionValue(start, end, frame, maxFrames) {
+    return start + (frame / maxFrames) * (end - start);
+}

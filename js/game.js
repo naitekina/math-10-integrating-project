@@ -4,8 +4,13 @@ var canvas_bot = null;
 var ctx_bot = null;
 
 var frameDrawer = null; // interval
+var frameNum = 0;
+var maxFrameNum = 0;
+var keepTrackOfFrame = false;
+var inTransition = false;
 
-var CMODE = MODE.BLACK; // mode of the game
+var CMODE = DRAWMODE.LOADING; // mode of the game
+var NMODE = DRAWMODE.LOADING;
 
 var textures = {
     defaultBG: null,
@@ -102,29 +107,102 @@ function loadTextures() {
 }
 
 
+function handleEndTransition() {
+    frameNum = 0;
+    maxFrameNum = 0;
+    keepTrackOfFrame = false;
+    inTransition = false;
+
+    console.log("end transition " + CMODE + " " + NMODE);
+
+    if(CMODE == DRAWMODE.LOADING) {
+        CMODE = NMODE;
+        NMODE = DRAWMODE.STORY_HOOD_TP;
+    } else {
+        CMODE = NMODE;
+    }
+}
+
 function drawFrame() {
     try {
-        if(numLoaded < maxNumLoaded) return;
+        if(keepTrackOfFrame) {
+            if(frameNum >= maxFrameNum) handleEndTransition();
+            frameNum++;
+        }
 
-        // fill with white
+        // if(numLoaded < maxNumLoaded) return;
+
+        // fill with black
         ctx_top.restore();
-        ctx_top.fillStyle = "#ffffff";
+        ctx_top.fillStyle = "#000000";
         ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
 
         ctx_bot.restore();
-        ctx_bot.fillStyle = "#ffffff";
+        ctx_bot.fillStyle = "#000000";
         ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
 
-        drawBattleBG();
+        
+        if(CMODE == DRAWMODE.LOADING) {
+            ctx_top.restore();
+            ctx_top.fillStyle = "#ffffff";
+            ctx_top.font = "48px Pixelade";
+            ctx_top.textAlign = "center";
+            ctx_top.fillText(
+                "Loading.....",
+                canvas_top.width / 2,
+                canvas_top.height / 2 - 24);
+            
+            ctx_top.restore();
+            ctx_top.fillStyle = "#ffffff";
+            ctx_top.font = "48px Pixelade";
+            ctx_top.textAlign = "center";
+            ctx_top.fillText(
+                numLoaded + "/" + maxNumLoaded + " (" + (Math.round(numLoaded / maxNumLoaded * 10000) / 100) + "%)",
+                canvas_top.width / 2,
+                canvas_top.height / 2 + 24);
 
-        drawOpponentBase();
-        drawOpponentInfo();
-        drawPlayerBase();
-        drawPlayerInfo();
+            if(!inTransition && numLoaded >= maxNumLoaded) {
+                frameNum = 1;
+                maxFrameNum = 15;
+                keepTrackOfFrame = true;
+                inTransition = true;
 
-        drawMessageBar();
+                NMODE = DRAWMODE.BLACK;
+            }
+            
+            if(inTransition) {
+                ctx_top.restore();
+                ctx_top.fillStyle = "rgba(0, 0, 0, " + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
+                ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
+            }
+        } else if(CMODE == DRAWMODE.BLACK) {
+            if(!inTransition) {
+                frameNum = 1;
+                maxFrameNum = 30;
+                keepTrackOfFrame = true;
+                inTransition = true;
+            }
+        } else if(CMODE == DRAWMODE.STORY_HOOD_TP) {
+            ctx_top.restore();
+            ctx_top.fillStyle = "#ffffff";
+            ctx_top.font = "48px Pixelade";
+            ctx_top.textAlign = "center";
+            ctx_top.fillText("insert hooded figure", canvas_top.width / 2, canvas_top.height / 2);
 
-        drawBottomBackground();
+            drawMessageBox("(t) You have been teleported to", "hello world", "center");
+        }
+
+
+        // drawBattleBG();
+
+        // drawOpponentBase();
+        // drawOpponentInfo();
+        // drawPlayerBase();
+        // drawPlayerInfo();
+
+        // drawMessageBox();
+
+        // drawBottomBackground();
     } catch(error) {
         console.log(error);
     }
@@ -135,7 +213,7 @@ function handleClick(e) {
     var x = e.pageX - (canvas_bot.offsetLeft + canvas_bot.clientLeft);
     var y = e.pageY - (canvas_bot.offsetTop + canvas_bot.clientTop) - ((canvas_bot.offsetHeight - (canvas_bot.offsetWidth / 4 * 3)) / 2);
 
-    alert("x:" + x + ", y:" + y + " || width:" + canvas_bot.offsetWidth + ", height:" + canvas_bot.offsetHeight);
+    // alert("x:" + x + ", y:" + y + " || width:" + canvas_bot.offsetWidth + ", height:" + canvas_bot.offsetHeight);
 }
 
 
@@ -293,60 +371,69 @@ function drawText_HPNum(hp, x, canvasY) {
 }
 
 function drawSex(s, canvasX, canvasY) {
-    // texture is 16x20 with space
-    // texture is 14x20
+    // texture is 14x20, 16x20 with space
     ctx_top.drawImage(textures.sex, s * 16, 0, 14, 20, canvasX, canvasY, 14, 20);
 }
 
 
 
-function drawMessageBar() {
+function drawMessageBox(text1, text2, textAlign = "left") {
     ctx_top.restore();
 
-    // transparent background black
-    ctx_top.fillStyle = "rgba(0, 0, 0, 0.5)";
+    // transparent background: black
+    ctx_top.fillStyle = "rgba(0, 127, 0, 0.5)";
     ctx_top.fillRect(
         0,
-        canvas_top.height - POSITIONS.messageBar.posB_Top,
+        canvas_top.height - POSITIONS.messageBox.posB_Top,
         canvas_top.width,
-        POSITIONS.messageBar.height);
+        POSITIONS.messageBox.height);
 
-    // transparent border red
-    ctx_top.fillStyle = "rgba(127, 0, 0, 0.5)";
-    ctx_top.fillRect(
-        0,
-        canvas_top.height - POSITIONS.messageBar.posB_Top - POSITIONS.messageBar.border.height,
-        canvas_top.width,
-        POSITIONS.messageBar.border.height);
-    ctx_top.fillRect(
-        0,
-        canvas_top.height - POSITIONS.messageBar.posB_Top + POSITIONS.messageBar.height,
-        canvas_top.width,
-        POSITIONS.messageBar.border.height);
+    // transparent border
+    if(CMODE == DRAWMODE.BATTLE_DEFAULT) {
+        ctx_top.fillStyle = "rgba(127, 0, 0, 0.5)";
+        ctx_top.fillRect(
+            0,
+            canvas_top.height - POSITIONS.messageBox.posB_Top - POSITIONS.messageBox.border.height,
+            canvas_top.width,
+            POSITIONS.messageBox.border.height);
+        ctx_top.fillRect(
+            0,
+            canvas_top.height - POSITIONS.messageBox.posB_Top + POSITIONS.messageBox.height,
+            canvas_top.width,
+            POSITIONS.messageBox.border.height);
+    }
 
     // text
     ctx_top.font = "32px PixelOperatorBold";
     ctx_top.fillStyle = "#ffffff";
-    var message = "What will you do?";
-    ctx_top.fillText(message, 16, canvas_top.height - 100 + 32);
+    ctx_top.textAlign = textAlign;
+    // todo
+    ctx_top.fillText(
+        text1,
+        textAlign == "left" ? (POSITIONS.messageBox.text.marginLR) : ((textAlign == "right") ? (canvas_top.width - POSITIONS.messageBox.text.marginLR) : (canvas_top.width / 2)),
+        canvas_top.height - POSITIONS.messageBox.posB_Top + (POSITIONS.messageBox.height / 2) - (POSITIONS.messageBox.text.marginMid / 2));
+    ctx_top.fillText(
+        text2,
+        textAlign == "left" ? (POSITIONS.messageBox.text.marginLR) : ((textAlign == "right") ? (canvas_top.width - POSITIONS.messageBox.text.marginLR) : (canvas_top.width / 2)),
+        canvas_top.height - POSITIONS.messageBox.posB_Top + (POSITIONS.messageBox.height / 2) + (POSITIONS.messageBox.text.marginMid / 2) + (POSITIONS.messageBox.text.size / 2));
 }
 
 
 function drawBottomBackground() {
     ctx_bot.restore();
 
-    if(CMODE == MODE.BLACK) {
+    if(CMODE == DRAWMODE.BLACK) {
         ctx_bot.fillStyle = "#000000";
         ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
-    } else if(CMODE == MODE.DEFAULT) {
+    } else if(CMODE == DRAWMODE.DEFAULT) {
         ctx_bot.drawImage(textures.defaultBG, 0, 0, canvas_bot.width, canvas_bot.height);
-    } else if(CMODE == MODE.BASE) {
+    } else if(CMODE == DRAWMODE.BASE) {
         ctx_bot.drawImage(textures.battleBGBase, 0, 0, canvas_bot.width, canvas_bot.height);
         drawTime();
-    } else if(CMODE == MODE.MAIN) {
+    } else if(CMODE == DRAWMODE.MAIN) {
         ctx_bot.drawImage(textures.battleBGMain, 0, 0, canvas_bot.width, canvas_bot.height);
         drawTime();
-    } else if(CMODE == MODE.FIGHT) {
+    } else if(CMODE == DRAWMODE.FIGHT) {
         ctx_bot.drawImage(textures.battleBGFight, 0, 0, canvas_bot.width, canvas_bot.height);
         drawTime();
     }
