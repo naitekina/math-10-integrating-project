@@ -14,8 +14,16 @@ const DRAWMODE = {
         TRANSITION_FADE: 10.1,
         IDLE_BLACK: 10.2
     },
-    STORY_HOOD_SPOTLIGHT_1: 11,
-    STORY_FEATURE: 12,
+    STORY_HOOD_SPOTLIGHT_1: {
+        BASE: 11,
+        LINE1: 11.1,
+        LINE2: 11.2
+    },
+    STORY_FEATURE: {
+        BASE: 12,
+        LINE1: 12.1,
+        LINE2: 12.2
+    },
     STORY_HOOD_SPOTLIGHT_2: 13,
     STORY_HUDDLE: 14,
     STORY_CRASH: 15,
@@ -32,6 +40,20 @@ const DRAWMODE = {
     POST_EPILOGUE: 30,
     POST_CREDITS: 31,
     POST_FINAL: 32
+};
+
+const SCRIPT = {
+    STORY_HOOD_SPOTLIGHT_1: [
+        "text1",
+        "text2",
+        "text3",
+        "text4"
+    ], STORY_FEATURE: [
+        "text1",
+        "text2",
+        "text3",
+        "text4"
+    ]
 };
 
 

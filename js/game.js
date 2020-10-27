@@ -9,9 +9,10 @@ var maxFrameNum = 0;
 var keepTrackOfFrame = false;
 var isIdle = false;
 var inTransition = false;
-var textIndex = 0; // per line, index in array
+var charIndex = 0; // per char, index in array
+var lineIndex = 0; // per line
 
-var CMODE = DRAWMODE.LOADING.BASE; // mode of the game
+var CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE; // mode of the game
 var NMODE = -1;
 
 var textures = {
@@ -175,18 +176,22 @@ function handleEndTransition() {
         setTrackFrame(0.5 * FPS);
     } else if(CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADE) {
         CMODE = NMODE; // IDLE_BLACK
-        NMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_1;
+        NMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE;
         setTrackFrame(1.0 * FPS);
     } else if(CMODE == DRAWMODE.STORY_HOOD_TP.IDLE_BLACK) {
         CMODE = NMODE; // STORY SPOTLIGHT 1
         setTrackFrame(1.0 * FPS);
+    } else {
+        CMODE = NMODE;
     }
 }
 
-function setTrackFrame(max) {
+function setTrackFrame(max, next = null) {
     frameNum = 1;
     maxFrameNum = max;
     keepTrackOfFrame = true;
+    if(next != null)
+        NMODE = next;
 }
 
 function drawFrame() {
@@ -272,7 +277,7 @@ function drawFrame() {
                 ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
                 ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
             }
-        } else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1) {
+        } else if(BASEMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE) {
             ctx_top.restore();
             ctx_top.fillStyle = "#ffffff";
             ctx_top.fillRect(0,0,canvas_top.width,canvas_top.height);
@@ -292,29 +297,33 @@ function drawFrame() {
                 (canvas_top.width / 2) - (textures.hoodedFigure.width / 2),
                 POSITIONS.story.hood_tp.figure.posT);
 
-            // overlay message box
-            drawOverlayMessageBox("text1", "text2");
-
             // bottom screen
             ctx_bot.restore();
             ctx_bot.fillStyle = "#6a6a6a";
             ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
 
-            // if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.SLIDE) {
-            //     ctx_top.restore();
-            //     ctx_top.fillStyle = "#000000";
-            //     var h1 = transitionValue(canvas_top.height, 0, frameNum, 0.5 * FPS);
-            //     if(h1 >= 0)
-            //         ctx_top.fillRect(0, canvas_top.height - h1, canvas_top.width, h1);
-                
-            //     ctx_bot.restore();
-            //     ctx_bot.fillStyle = "#000000";
-            //     var h2 = transitionValue(canvas_bot.height * 2, 0, frameNum, 1.0 * FPS);
-            //     if(h2 <= canvas_bot.height)
-            //         ctx_bot.fillRect(0, canvas_bot.height - h2, canvas_bot.width, h2);
-                
-            //     console.log(h1 + " " + h2);
-            // }
+            // press anywhere
+            ctx_bot.restore();
+            ctx_bot.fillStyle = "#ffffff";
+            ctx_bot.font = "32px PixelOperatorBold";
+            ctx_bot.textAlign = "center";
+            ctx_bot.fillText("Press anywhere here to continue.", canvas_bot.width / 2, canvas_bot.height / 2);
+
+
+            if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE) {
+                CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1;
+            }
+
+            // overlay message
+            if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1) {
+                drawOverlayMessageBox(SCRIPT.STORY_HOOD_SPOTLIGHT_1[0], SCRIPT.STORY_HOOD_SPOTLIGHT_1[1]);
+                // if(!keepTrackOfFrame)
+                //     setTrackFrame(5.0 * FPS, DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE2);
+            } else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE2) {
+                drawOverlayMessageBox(SCRIPT.STORY_HOOD_SPOTLIGHT_1[2], SCRIPT.STORY_HOOD_SPOTLIGHT_1[3]);
+                // if(!keepTrackOfFrame)
+                //     setTrackFrame(5.0 * FPS, DRAWMODE.STORY_FEATURE);
+            }
         }
 
 
@@ -338,6 +347,12 @@ function handleClick(e) {
     var x = e.pageX - (canvas_bot.offsetLeft + canvas_bot.clientLeft);
     var y = e.pageY - (canvas_bot.offsetTop + canvas_bot.clientTop) - ((canvas_bot.offsetHeight - (canvas_bot.offsetWidth / 4 * 3)) / 2);
 
+    if(x < 0 || x > canvas_bot.offsetWidth || y < 0 || y > canvas_bot.offsetWidth / 4 * 3) return;
+
+    if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1)
+        CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE2;
+    else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE2)
+        CMODE = DRAWMODE.STORY_FEATURE.BASE;
     // alert("x:" + x + ", y:" + y + " || width:" + canvas_bot.offsetWidth + ", height:" + canvas_bot.offsetHeight);
 }
 
