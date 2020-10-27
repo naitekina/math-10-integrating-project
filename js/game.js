@@ -7,6 +7,7 @@ var frameDrawer = null; // interval
 var frameNum = 0;
 var maxFrameNum = 0;
 var keepTrackOfFrame = false;
+var isIdle = false;
 var inTransition = false;
 
 var CMODE = DRAWMODE.LOADING; // mode of the game
@@ -18,6 +19,10 @@ var textures = {
     battleBGBase: null,
     battleBGMain: null,
     battleBGFight: null,
+
+    hoodedFigure: null,
+    battle_players: null,
+    battle_sir: null,
 
     sex: null,
     battleFontAlphanum: null,
@@ -72,6 +77,19 @@ function loadTextures() {
         textures.battleBGMain.src = "./img/game/bottom/battleBGMain.png";
 
 
+        textures.hoodedFigure = new Image();
+        textures.hoodedFigure.onload = onLoadedFunction;
+        textures.hoodedFigure.src = "./img/game/people/story_hoodedFigure.png";
+
+        textures.battle_players = new Image();
+        textures.battle_players.onload = onLoadedFunction;
+        textures.battle_players.src = "./img/game/people/battle_players.png";
+
+        textures.battle_sir = new Image();
+        textures.battle_sir.onload = onLoadedFunction;
+        textures.battle_sir.src = "./img/game/people/battle_sir.png";
+
+
         textures.sex = new Image();
         textures.sex.onload = onLoadedFunction;
         textures.sex.src = "./img/game/sex.png";
@@ -118,8 +136,22 @@ function handleEndTransition() {
     if(CMODE == DRAWMODE.LOADING) {
         CMODE = NMODE;
         NMODE = DRAWMODE.STORY_HOOD_TP;
+    } else if(CMODE == DRAWMODE.STORY_HOOD_TP) {
+        if(isIdle) {
+            frameNum = 1;
+            maxFrameNum = 30;
+            keepTrackOfFrame = true;
+            isIdle = false;
+            inTransition = true;
+
+            NMODE = DRAWMODE.STORY_HOOD_FADE;
+        } else {
+            CMODE = NMODE;
+            NMODE = -1;
+        }
     } else {
         CMODE = NMODE;
+        NMODE = -1;
     }
 }
 
@@ -172,7 +204,7 @@ function drawFrame() {
             
             if(inTransition) {
                 ctx_top.restore();
-                ctx_top.fillStyle = "rgba(0, 0, 0, " + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
+                ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
                 ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
             }
         } else if(CMODE == DRAWMODE.BLACK) {
@@ -184,12 +216,40 @@ function drawFrame() {
             }
         } else if(CMODE == DRAWMODE.STORY_HOOD_TP) {
             ctx_top.restore();
+
+            // hooded figure
             ctx_top.fillStyle = "#ffffff";
             ctx_top.font = "48px Pixelade";
             ctx_top.textAlign = "center";
             ctx_top.fillText("insert hooded figure", canvas_top.width / 2, canvas_top.height / 2);
+            
+            // circular gradient
+            var cgrad = ctx_top.createRadialGradient(canvas_top.width / 2, canvas_top.height / 5 * 3, 32, canvas_top.width / 2, canvas_top.height / 5 * 3, canvas_top.width / 2);
+            cgrad.addColorStop(0, "rgba(0,0,0,0.0)");
+            cgrad.addColorStop(1, "rgba(0,0,0,1.0)");
+            
+            ctx_top.fillStyle = cgrad;
+            ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
 
-            drawMessageBox("(t) You have been teleported to", "hello world", "center");
+            // message box
+            drawMessageBox("insert script text 1", "text 2", "center", "#ffffff", "rgba(127,127,127,0.5)");
+
+            if(!isIdle && !inTransition) {
+                frameNum = 1;
+                maxFrameNum = 2 * 30;
+                keepTrackOfFrame = true;
+                isIdle = true;
+            }
+
+            if(inTransition) {
+                ctx_top.restore();
+                ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
+                ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
+            }
+        } else if(CMODE == DRAWMODE.STORY_HOOD_FADE) {
+            ctx_top.restore();
+            ctx_top.fillStyle = "#ffffff";
+            ctx_top.fillRect(0,0,canvas_top.width,canvas_top.height);
         }
 
 
@@ -377,11 +437,11 @@ function drawSex(s, canvasX, canvasY) {
 
 
 
-function drawMessageBox(text1, text2, textAlign = "left") {
+function drawMessageBox(text1, text2, textAlign = "left", textColor = "#ffffff", backgroundColor = "rgba(0,0,0,0.5)", borderColor = "rgba(127,0,0,0.5)") {
     ctx_top.restore();
 
-    // transparent background: black
-    ctx_top.fillStyle = "rgba(0, 127, 0, 0.5)";
+    // transparent background
+    ctx_top.fillStyle = backgroundColor;
     ctx_top.fillRect(
         0,
         canvas_top.height - POSITIONS.messageBox.posB_Top,
@@ -390,7 +450,7 @@ function drawMessageBox(text1, text2, textAlign = "left") {
 
     // transparent border
     if(CMODE == DRAWMODE.BATTLE_DEFAULT) {
-        ctx_top.fillStyle = "rgba(127, 0, 0, 0.5)";
+        ctx_top.fillStyle = borderColor;
         ctx_top.fillRect(
             0,
             canvas_top.height - POSITIONS.messageBox.posB_Top - POSITIONS.messageBox.border.height,
@@ -405,7 +465,7 @@ function drawMessageBox(text1, text2, textAlign = "left") {
 
     // text
     ctx_top.font = "32px PixelOperatorBold";
-    ctx_top.fillStyle = "#ffffff";
+    ctx_top.fillStyle = textColor;
     ctx_top.textAlign = textAlign;
     // todo
     ctx_top.fillText(
