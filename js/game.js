@@ -9,18 +9,24 @@ var maxFrameNum = 0;
 var keepTrackOfFrame = false;
 var isIdle = false;
 var inTransition = false;
+var textIndex = 0; // per line, index in array
 
 var CMODE = DRAWMODE.LOADING; // mode of the game
-var NMODE = DRAWMODE.LOADING;
+var NMODE = -1;
 
 var textures = {
+    introBG: null,
+    introBase: null,
+    overlayMessageBox: null,
+
+    hoodedFigure: null,
+
     defaultBG: null,
 
     battleBGBase: null,
     battleBGMain: null,
     battleBGFight: null,
 
-    hoodedFigure: null,
     battle_players: null,
     battle_sir: null,
 
@@ -59,6 +65,24 @@ function loadTextures() {
         });
 
 
+        textures.introBG = new Image();
+        textures.introBG.onload = onLoadedFunction;
+        textures.introBG.src = "./img/game/intro_bg_bw.png";
+
+        textures.introBase = new Image();
+        textures.introBase.onload = onLoadedFunction;
+        textures.introBase.src = "./img/game/intro_base_bw.png";
+
+        textures.overlayMessageBox = new Image();
+        textures.overlayMessageBox.onload = onLoadedFunction;
+        textures.overlayMessageBox.src = "./img/game/overlay_message.png";
+
+
+        textures.hoodedFigure = new Image();
+        textures.hoodedFigure.onload = onLoadedFunction;
+        textures.hoodedFigure.src = "./img/game/people/story_hoodedFigure.png";
+
+
         textures.defaultBG = new Image();
         textures.defaultBG.onload = onLoadedFunction;
         textures.defaultBG.src = "./img/game/bottom/defaultBG.png";
@@ -76,10 +100,6 @@ function loadTextures() {
         textures.battleBGMain.onload = onLoadedFunction;
         textures.battleBGMain.src = "./img/game/bottom/battleBGMain.png";
 
-
-        textures.hoodedFigure = new Image();
-        textures.hoodedFigure.onload = onLoadedFunction;
-        textures.hoodedFigure.src = "./img/game/people/story_hoodedFigure.png";
 
         textures.battle_players = new Image();
         textures.battle_players.onload = onLoadedFunction;
@@ -139,7 +159,7 @@ function handleEndTransition() {
     } else if(CMODE == DRAWMODE.STORY_HOOD_TP) {
         if(isIdle) {
             frameNum = 1;
-            maxFrameNum = 30;
+            maxFrameNum = FPS;
             keepTrackOfFrame = true;
             isIdle = false;
             inTransition = true;
@@ -175,6 +195,7 @@ function drawFrame() {
 
         
         if(CMODE == DRAWMODE.LOADING) {
+            // loading... text
             ctx_top.restore();
             ctx_top.fillStyle = "#ffffff";
             ctx_top.font = "48px Pixelade";
@@ -184,6 +205,7 @@ function drawFrame() {
                 canvas_top.width / 2,
                 canvas_top.height / 2 - 24);
             
+            // number and percentage
             ctx_top.restore();
             ctx_top.fillStyle = "#ffffff";
             ctx_top.font = "48px Pixelade";
@@ -210,7 +232,7 @@ function drawFrame() {
         } else if(CMODE == DRAWMODE.BLACK) {
             if(!inTransition) {
                 frameNum = 1;
-                maxFrameNum = 30;
+                maxFrameNum = FPS;
                 keepTrackOfFrame = true;
                 inTransition = true;
             }
@@ -232,11 +254,11 @@ function drawFrame() {
             ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
 
             // message box
-            drawMessageBox("insert script text 1", "text 2", "center", "#ffffff", "rgba(127,127,127,0.5)");
+            drawOverlayMessageBox("text 1", "text 2", "center", "#ffffff", "rgba(127,127,127,0.5)");
 
             if(!isIdle && !inTransition) {
                 frameNum = 1;
-                maxFrameNum = 2 * 30;
+                maxFrameNum = 2 * FPS;
                 keepTrackOfFrame = true;
                 isIdle = true;
             }
@@ -250,6 +272,29 @@ function drawFrame() {
             ctx_top.restore();
             ctx_top.fillStyle = "#ffffff";
             ctx_top.fillRect(0,0,canvas_top.width,canvas_top.height);
+
+            // bg
+            ctx_top.drawImage(textures.introBG, 0, 0, canvas_top.width, canvas_top.height);
+
+            // base
+            ctx_top.drawImage(
+                textures.introBase,
+                (canvas_top.width / 2) - (textures.introBase.width / 2),
+                POSITIONS.story.hood_tp.base.posT);
+
+            // hooden figure
+            ctx_top.drawImage(
+                textures.hoodedFigure,
+                (canvas_top.width / 2) - (textures.hoodedFigure.width / 2),
+                POSITIONS.story.hood_tp.figure.posT);
+
+            // overlay message box
+            drawOverlayMessageBox("text1", "text2");
+
+            // bottom screen
+            ctx_bot.restore();
+            ctx_bot.fillStyle = "#6a6a6a";
+            ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
         }
 
 
@@ -436,46 +481,67 @@ function drawSex(s, canvasX, canvasY) {
 }
 
 
+/*
+* MESSAGE BOX
+*/
+function drawOverlayMessageBox(text1, text2 = "", textAlign = "left") {
+    ctx_top.restore();
 
-function drawMessageBox(text1, text2, textAlign = "left", textColor = "#ffffff", backgroundColor = "rgba(0,0,0,0.5)", borderColor = "rgba(127,0,0,0.5)") {
+    // message box
+    ctx_top.drawImage(textures.overlayMessageBox, 0, canvas_top.height - textures.overlayMessageBox.height);
+
+    // text
+    ctx_top.font = "32px PixelOperatorBold";
+    ctx_top.fillStyle = "#000000";
+    ctx_top.textAlign = textAlign;
+    ctx_top.fillText(
+        text1,
+        textAlign == "left" ? (POSITIONS.overlayMessageBox.text.marginLR) : ((textAlign == "right") ? (canvas_top.width - POSITIONS.overlayMessageBox.text.marginLR) : (canvas_top.width / 2)),
+        canvas_top.height - (textures.overlayMessageBox.height / 2) + POSITIONS.overlayMessageBox.text.relPosT1);
+    ctx_top.fillText(
+        text2,
+        textAlign == "left" ? (POSITIONS.overlayMessageBox.text.marginLR) : ((textAlign == "right") ? (canvas_top.width - POSITIONS.overlayMessageBox.text.marginLR) : (canvas_top.width / 2)),
+        canvas_top.height - (textures.overlayMessageBox.height / 2) + POSITIONS.overlayMessageBox.text.relPosT2);
+}
+
+function drawFightMessageBox(text1, text2, textAlign = "left", textColor = "#ffffff", backgroundColor = "rgba(0,0,0,0.5)", borderColor = "rgba(127,0,0,0.5)") {
     ctx_top.restore();
 
     // transparent background
     ctx_top.fillStyle = backgroundColor;
     ctx_top.fillRect(
         0,
-        canvas_top.height - POSITIONS.messageBox.posB_Top,
+        canvas_top.height - POSITIONS.fightMessageBox.posB_Top,
         canvas_top.width,
-        POSITIONS.messageBox.height);
+        POSITIONS.fightMessageBox.height);
 
     // transparent border
     if(CMODE == DRAWMODE.BATTLE_DEFAULT) {
         ctx_top.fillStyle = borderColor;
         ctx_top.fillRect(
             0,
-            canvas_top.height - POSITIONS.messageBox.posB_Top - POSITIONS.messageBox.border.height,
+            canvas_top.height - POSITIONS.fightMessageBox.posB_Top - POSITIONS.fightMessageBox.border.height,
             canvas_top.width,
-            POSITIONS.messageBox.border.height);
+            POSITIONS.fightMessageBox.border.height);
         ctx_top.fillRect(
             0,
-            canvas_top.height - POSITIONS.messageBox.posB_Top + POSITIONS.messageBox.height,
+            canvas_top.height - POSITIONS.fightMessageBox.posB_Top + POSITIONS.fightMessageBox.height,
             canvas_top.width,
-            POSITIONS.messageBox.border.height);
+            POSITIONS.fightMessageBox.border.height);
     }
 
     // text
     ctx_top.font = "32px PixelOperatorBold";
     ctx_top.fillStyle = textColor;
     ctx_top.textAlign = textAlign;
-    // todo
     ctx_top.fillText(
         text1,
-        textAlign == "left" ? (POSITIONS.messageBox.text.marginLR) : ((textAlign == "right") ? (canvas_top.width - POSITIONS.messageBox.text.marginLR) : (canvas_top.width / 2)),
-        canvas_top.height - POSITIONS.messageBox.posB_Top + (POSITIONS.messageBox.height / 2) - (POSITIONS.messageBox.text.marginMid / 2));
+        textAlign == "left" ? (POSITIONS.fightMessageBox.text.marginLR) : ((textAlign == "right") ? (canvas_top.width - POSITIONS.fightMessageBox.text.marginLR) : (canvas_top.width / 2)),
+        canvas_top.height - POSITIONS.fightMessageBox.posB_Top + (POSITIONS.fightMessageBox.height / 2) + POSITIONS.fightMessageBox.text.relPosT1);
     ctx_top.fillText(
         text2,
-        textAlign == "left" ? (POSITIONS.messageBox.text.marginLR) : ((textAlign == "right") ? (canvas_top.width - POSITIONS.messageBox.text.marginLR) : (canvas_top.width / 2)),
-        canvas_top.height - POSITIONS.messageBox.posB_Top + (POSITIONS.messageBox.height / 2) + (POSITIONS.messageBox.text.marginMid / 2) + (POSITIONS.messageBox.text.size / 2));
+        textAlign == "left" ? (POSITIONS.fightMessageBox.text.marginLR) : ((textAlign == "right") ? (canvas_top.width - POSITIONS.fightMessageBox.text.marginLR) : (canvas_top.width / 2)),
+        canvas_top.height - POSITIONS.fightMessageBox.posB_Top + (POSITIONS.fightMessageBox.height / 2) + POSITIONS.fightMessageBox.text.relPosT2);
 }
 
 
