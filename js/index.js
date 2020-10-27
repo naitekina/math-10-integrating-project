@@ -16,7 +16,7 @@ function startGame() {
     loadTextures();
 
     frameNum = 0;
-    frameDrawer = setInterval(drawFrame, 1000 / 30);
+    frameDrawer = setInterval(drawFrame, 1000 / FPS);
 }
 
 function stopGame() {
