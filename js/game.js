@@ -11,7 +11,7 @@ var isIdle = false;
 var inTransition = false;
 var textIndex = 0; // per line, index in array
 
-var CMODE = DRAWMODE.LOADING; // mode of the game
+var CMODE = DRAWMODE.LOADING.BASE; // mode of the game
 var NMODE = -1;
 
 var textures = {
@@ -153,26 +153,40 @@ function handleEndTransition() {
 
     console.log("end transition " + CMODE + " " + NMODE);
 
-    if(CMODE == DRAWMODE.LOADING) {
-        CMODE = NMODE;
-        NMODE = DRAWMODE.STORY_HOOD_TP;
-    } else if(CMODE == DRAWMODE.STORY_HOOD_TP) {
-        if(isIdle) {
-            frameNum = 1;
-            maxFrameNum = FPS;
-            keepTrackOfFrame = true;
-            isIdle = false;
-            inTransition = true;
-
-            NMODE = DRAWMODE.STORY_HOOD_FADE;
-        } else {
-            CMODE = NMODE;
-            NMODE = -1;
-        }
-    } else {
-        CMODE = NMODE;
-        NMODE = -1;
+    if(CMODE == DRAWMODE.LOADING.BASE) {
+        CMODE = NMODE; // IDLE
+        NMODE = DRAWMODE.LOADING.TRANSITION_FADE;
+        setTrackFrame(2.0 * FPS);
+    } else if(CMODE == DRAWMODE.LOADING.IDLE) {
+        CMODE = NMODE; // TRANSITION_FADE
+        NMODE = DRAWMODE.LOADING.IDLE_BLACK;
+        setTrackFrame(0.5 * FPS);
+    } else if(CMODE == DRAWMODE.LOADING.TRANSITION_FADE) {
+        CMODE = NMODE; // IDLE_BLACK
+        NMODE = DRAWMODE.STORY_HOOD_TP.BASE;
+        setTrackFrame(1.0 * FPS);
+    } else if(CMODE == DRAWMODE.LOADING.IDLE_BLACK) {
+        CMODE = NMODE; // STORY_HOOD_TP
+        NMODE = DRAWMODE.STORY_HOOD_TP.TRANSITION_FADE;
+        setTrackFrame(2.0 * FPS);
+    } else if(CMODE == DRAWMODE.STORY_HOOD_TP.BASE) {
+        CMODE = NMODE; // TRANSITION_FADE
+        NMODE = DRAWMODE.STORY_HOOD_TP.IDLE_BLACK;
+        setTrackFrame(0.5 * FPS);
+    } else if(CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADE) {
+        CMODE = NMODE; // IDLE_BLACK
+        NMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_1;
+        setTrackFrame(1.0 * FPS);
+    } else if(CMODE == DRAWMODE.STORY_HOOD_TP.IDLE_BLACK) {
+        CMODE = NMODE; // STORY SPOTLIGHT 1
+        setTrackFrame(1.0 * FPS);
     }
+}
+
+function setTrackFrame(max) {
+    frameNum = 1;
+    maxFrameNum = max;
+    keepTrackOfFrame = true;
 }
 
 function drawFrame() {
@@ -193,82 +207,72 @@ function drawFrame() {
         ctx_bot.fillStyle = "#000000";
         ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
 
+
+        var BASEMODE = Math.floor(CMODE);
         
-        if(CMODE == DRAWMODE.LOADING) {
-            // loading... text
-            ctx_top.restore();
-            ctx_top.fillStyle = "#ffffff";
-            ctx_top.font = "48px Pixelade";
-            ctx_top.textAlign = "center";
-            ctx_top.fillText(
-                "Loading.....",
-                canvas_top.width / 2,
-                canvas_top.height / 2 - 24);
-            
-            // number and percentage
-            ctx_top.restore();
-            ctx_top.fillStyle = "#ffffff";
-            ctx_top.font = "48px Pixelade";
-            ctx_top.textAlign = "center";
-            ctx_top.fillText(
-                numLoaded + "/" + maxNumLoaded + " (" + (Math.round(numLoaded / maxNumLoaded * 10000) / 100) + "%)",
-                canvas_top.width / 2,
-                canvas_top.height / 2 + 24);
+        if(BASEMODE == DRAWMODE.LOADING.BASE) {
+            if(CMODE != DRAWMODE.LOADING.IDLE_BLACK) {
+                // loading... text
+                ctx_top.restore();
+                ctx_top.fillStyle = "#ffffff";
+                ctx_top.font = "48px Pixelade";
+                ctx_top.textAlign = "center";
+                ctx_top.fillText(
+                    "Loading.....",
+                    canvas_top.width / 2,
+                    canvas_top.height / 2 - 24);
+                
+                // number and percentage
+                ctx_top.restore();
+                ctx_top.fillStyle = "#ffffff";
+                ctx_top.font = "48px Pixelade";
+                ctx_top.textAlign = "center";
+                ctx_top.fillText(
+                    numLoaded + "/" + maxNumLoaded + " (" + (Math.round(numLoaded / maxNumLoaded * 10000) / 100) + "%)",
+                    canvas_top.width / 2,
+                    canvas_top.height / 2 + 24);
+            }
 
-            if(!inTransition && numLoaded >= maxNumLoaded) {
-                frameNum = 1;
-                maxFrameNum = 15;
-                keepTrackOfFrame = true;
-                inTransition = true;
+            if(CMODE == DRAWMODE.LOADING.BASE && numLoaded >= maxNumLoaded) {
+                setTrackFrame(1.0 * FPS);
 
-                NMODE = DRAWMODE.BLACK;
+                CMODE = DRAWMODE.LOADING.IDLE;
+                NMODE = DRAWMODE.LOADING.TRANSITION_FADE;
             }
             
-            if(inTransition) {
+            if(CMODE == DRAWMODE.LOADING.TRANSITION_FADE) {
                 ctx_top.restore();
                 ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
                 ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
             }
-        } else if(CMODE == DRAWMODE.BLACK) {
-            if(!inTransition) {
-                frameNum = 1;
-                maxFrameNum = FPS;
-                keepTrackOfFrame = true;
-                inTransition = true;
-            }
-        } else if(CMODE == DRAWMODE.STORY_HOOD_TP) {
+        } else if(BASEMODE == DRAWMODE.STORY_HOOD_TP.BASE) {
             ctx_top.restore();
 
-            // hooded figure
-            ctx_top.fillStyle = "#ffffff";
-            ctx_top.font = "48px Pixelade";
-            ctx_top.textAlign = "center";
-            ctx_top.fillText("insert hooded figure", canvas_top.width / 2, canvas_top.height / 2);
-            
-            // circular gradient
-            var cgrad = ctx_top.createRadialGradient(canvas_top.width / 2, canvas_top.height / 5 * 3, 32, canvas_top.width / 2, canvas_top.height / 5 * 3, canvas_top.width / 2);
-            cgrad.addColorStop(0, "rgba(0,0,0,0.0)");
-            cgrad.addColorStop(1, "rgba(0,0,0,1.0)");
-            
-            ctx_top.fillStyle = cgrad;
-            ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
+            if(CMODE != DRAWMODE.STORY_HOOD_TP.IDLE_BLACK) {
+                // hooded figure
+                ctx_top.fillStyle = "#ffffff";
+                ctx_top.font = "48px Pixelade";
+                ctx_top.textAlign = "center";
+                ctx_top.fillText("insert hooded figure", canvas_top.width / 2, canvas_top.height / 2);
+                
+                // circular gradient
+                var cgrad = ctx_top.createRadialGradient(canvas_top.width / 2, canvas_top.height / 5 * 3, 32, canvas_top.width / 2, canvas_top.height / 5 * 3, canvas_top.width / 2);
+                cgrad.addColorStop(0, "rgba(0,0,0,0.0)");
+                cgrad.addColorStop(1, "rgba(0,0,0,1.0)");
+                
+                ctx_top.fillStyle = cgrad;
+                ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
 
-            // message box
-            drawOverlayMessageBox("text 1", "text 2", "center", "#ffffff", "rgba(127,127,127,0.5)");
-
-            if(!isIdle && !inTransition) {
-                frameNum = 1;
-                maxFrameNum = 2 * FPS;
-                keepTrackOfFrame = true;
-                isIdle = true;
+                // message box
+                drawOverlayMessageBox("text 1", "text 2", "center", "#ffffff", "rgba(127,127,127,0.5)");
             }
 
-            if(inTransition) {
+            if(CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADE) {
                 ctx_top.restore();
                 ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
                 ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
             }
-        } else if(CMODE == DRAWMODE.STORY_HOOD_FADE) {
+        } else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1) {
             ctx_top.restore();
             ctx_top.fillStyle = "#ffffff";
             ctx_top.fillRect(0,0,canvas_top.width,canvas_top.height);
@@ -282,7 +286,7 @@ function drawFrame() {
                 (canvas_top.width / 2) - (textures.introBase.width / 2),
                 POSITIONS.story.hood_tp.base.posT);
 
-            // hooden figure
+            // hooded figure
             ctx_top.drawImage(
                 textures.hoodedFigure,
                 (canvas_top.width / 2) - (textures.hoodedFigure.width / 2),
@@ -295,6 +299,22 @@ function drawFrame() {
             ctx_bot.restore();
             ctx_bot.fillStyle = "#6a6a6a";
             ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
+
+            // if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.SLIDE) {
+            //     ctx_top.restore();
+            //     ctx_top.fillStyle = "#000000";
+            //     var h1 = transitionValue(canvas_top.height, 0, frameNum, 0.5 * FPS);
+            //     if(h1 >= 0)
+            //         ctx_top.fillRect(0, canvas_top.height - h1, canvas_top.width, h1);
+                
+            //     ctx_bot.restore();
+            //     ctx_bot.fillStyle = "#000000";
+            //     var h2 = transitionValue(canvas_bot.height * 2, 0, frameNum, 1.0 * FPS);
+            //     if(h2 <= canvas_bot.height)
+            //         ctx_bot.fillRect(0, canvas_bot.height - h2, canvas_bot.width, h2);
+                
+            //     console.log(h1 + " " + h2);
+            // }
         }
 
 

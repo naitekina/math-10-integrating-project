@@ -1,17 +1,25 @@
 const FPS = 30;
 
 const DRAWMODE = {
-    LOADING: 0,
+    LOADING: {
+        BASE: 0,
+        IDLE: 0.1,
+        TRANSITION_FADE: 0.2,
+        IDLE_BLACK: 0.3,
+    },
     BLACK: 1,
 
-    STORY_HOOD_TP: 10,
-    STORY_HOOD_FADE: 11,
-    STORY_HOOD_SPOTLIGHT_1: 12,
-    STORY_FEATURE: 13,
-    STORY_HOOD_SPOTLIGHT_2: 14,
-    STORY_HUDDLE: 15,
-    STORY_CRASH: 16,
-    STORY_APPEAR: 17,
+    STORY_HOOD_TP: {
+        BASE: 10,
+        TRANSITION_FADE: 10.1,
+        IDLE_BLACK: 10.2
+    },
+    STORY_HOOD_SPOTLIGHT_1: 11,
+    STORY_FEATURE: 12,
+    STORY_HOOD_SPOTLIGHT_2: 13,
+    STORY_HUDDLE: 14,
+    STORY_CRASH: 15,
+    STORY_APPEAR: 16,
 
     BATTLE_VS: 20,
     BATTLE_DEFAULT: 21,
