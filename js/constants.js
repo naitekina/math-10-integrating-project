@@ -1,3 +1,5 @@
+const FPS = 30;
+
 const DRAWMODE = {
     LOADING: 0,
     BLACK: 1,
@@ -40,15 +42,29 @@ const SEX = {
 
 
 const POSITIONS = {
-    messageBox: {
+    story: {
+        hood_tp: {
+            base: {
+                posT: 224
+            }, figure: {
+                posT: 128
+            }
+        }
+    }, overlayMessageBox: {
+        text: {
+            marginLR: 32,
+            relPosT1: -4,
+            relPosT2: 24
+        }
+    }, fightMessageBox: {
         posB_Top: 100,
         height: 88,
         border: {
             height: 2
         }, text: {
-            size: 32,
             marginLR: 16,
-            marginMid: 16,
+            relPosT1: -8,
+            relPosT2: 24
         }
     }, battleFoeBox: {
         posL: 0,
