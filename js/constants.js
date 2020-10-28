@@ -24,7 +24,11 @@ const DRAWMODE = {
         LINE1: 12.1,
         LINE2: 12.2
     },
-    STORY_HOOD_SPOTLIGHT_2: 13,
+    STORY_HOOD_SPOTLIGHT_2: {
+        BASE: 13,
+        LINE1: 13.1,
+        LINE2: 13.2
+    },
     STORY_HUDDLE: 14,
     STORY_CRASH: 15,
     STORY_APPEAR: 16,
