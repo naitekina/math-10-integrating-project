@@ -7,7 +7,6 @@ const DRAWMODE = {
         TRANSITION_FADE: 0.2,
         IDLE_BLACK: 0.3,
     },
-    BLACK: 1,
 
     STORY_HOOD_TP: {
         BASE: 10,
@@ -155,6 +154,18 @@ const POSITIONS = {
         posL: -104,
         posB: 224,
         scale: 1.25
+    }
+};
+
+const GAMEDATA = {
+    PLAYER: {
+        NAME: "Group Four",
+        LEVEL: 25,
+        HPMAX: 300
+    }, OPPONENT: {
+        NAME: "Sir Calvin",
+        LEVEL: 100,
+        HPMAX: 1000
     }
 };
 
