@@ -1,9 +1,3 @@
-function drawBattleBG() {
-    ctx_top.restore();
-
-    ctx_top.drawImage(textures.battleBG, 0, 0, canvas_top.width, canvas_top.height);
-}
-
 /*
 * BASE
 */
@@ -41,7 +35,7 @@ function drawOpponentInfo() {
 
     // name
     drawText(
-        "Sir Calvin",
+        GAMEDATA.OPPONENT.NAME,
         POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.name.relPosL, 
         POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.name.relPosT);
 
@@ -53,14 +47,16 @@ function drawOpponentInfo() {
 
     // level number
     drawText(
-        "100",
+        GAMEDATA.OPPONENT.LEVEL.toString(),
         POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.level.relPosL,
         POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.level.relPosT);
 
     // hp bar
-    ctx_top.fillStyle = "#00ff00";
-    ctx_top.fillRect(POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.hpBar.relPosL, POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.hpBar.relPosT, POSITIONS.battleFoeBox.hpBar.w, POSITIONS.battleFoeBox.hpBar.h);
-    // drawHPBarFill();
+    drawHpBarFill(
+        POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.hpBar.relPosL,
+        POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.hpBar.relPosT,
+        GAME.opponent.hp,
+        GAMEDATA.OPPONENT.HPMAX);
 }
 
 function drawPlayerInfo() {
@@ -73,32 +69,42 @@ function drawPlayerInfo() {
 
     // name
     drawText(
-        "Group Four",
+        GAMEDATA.PLAYER.NAME,
         posX + POSITIONS.battlePlayerBox.name.relPosL,
         POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.name.relPosT);
 
     // level number
     drawText(
-        "25",
+        GAMEDATA.PLAYER.LEVEL.toString(),
         posX + POSITIONS.battlePlayerBox.level.relPosL,
         POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.level.relPosT);
 
     // hp bar
-    ctx_top.fillStyle = "#00ff00";
-    ctx_top.fillRect(posX + POSITIONS.battlePlayerBox.hpBar.relPosL, POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpBar.relPosT, POSITIONS.battlePlayerBox.hpBar.w, POSITIONS.battlePlayerBox.hpBar.h);
+    drawHpBarFill(
+        posX + POSITIONS.battlePlayerBox.hpBar.relPosL,
+        POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpBar.relPosT,
+        GAME.player.hp,
+        GAMEDATA.PLAYER.HPMAX);
 
     // hp num
     drawText_HPNum(
-        100,
+        GAME.player.hp,
         posX + POSITIONS.battlePlayerBox.hpNum.hp.relPosL_End,
         POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpNum.relPosT);
     drawText_HPTotal(
-        100,
+        GAMEDATA.PLAYER.HPMAX,
         posX + POSITIONS.battlePlayerBox.hpNum.total.relPosL,
         POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpNum.relPosT);
 
     // exp bar
-    ctx_top.fillRect(posX + POSITIONS.battlePlayerBox.expBar.relPosL, POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.expBar.relPosT, POSITIONS.battlePlayerBox.expBar.w, POSITIONS.battlePlayerBox.expBar.h);
+    ctx_top.restore();
+    ctx_top.fillStyle = "#00ff00";
+    ctx_top.fillRect(
+        posX + POSITIONS.battlePlayerBox.expBar.relPosL,
+        POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.expBar.relPosT,
+        Math.round(GAME.player.exp * POSITIONS.battlePlayerBox.expBar.w),
+        POSITIONS.battlePlayerBox.expBar.h);
+    // ctx_top.fillRect(posX + POSITIONS.battlePlayerBox.expBar.relPosL, POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.expBar.relPosT, POSITIONS.battlePlayerBox.expBar.w, POSITIONS.battlePlayerBox.expBar.h);
 }
 
 
@@ -154,6 +160,27 @@ function drawText_HPNum(hp, x, canvasY) {
 function drawSex(s, canvasX, canvasY) {
     // texture is 14x20, 16x20 with space
     ctx_top.drawImage(textures.sex, s * 16, 0, 14, 20, canvasX, canvasY, 14, 20);
+}
+
+function drawHpBarFill(x, y, hp, hpMax) {
+    var perc = hp / hpMax;
+    var hpBarFillColor = [];
+
+    if(perc > 0.66)
+        hpBarFillColor = HPBARCOLOR[1];
+    else if(perc > 0.33)
+        hpBarFillColor = HPBARCOLOR[2];
+    else
+        hpBarFillColor = HPBARCOLOR[3];
+    
+
+    ctx_top.restore();
+
+    ctx_top.fillStyle = hpBarFillColor[0];
+    ctx_top.fillRect(x, y, perc * POSITIONS.battlePlayerBox.hpBar.w, POSITIONS.battlePlayerBox.hpBar.h / 2);
+
+    ctx_top.fillStyle = hpBarFillColor[1];
+    ctx_top.fillRect(x, y + POSITIONS.battlePlayerBox.hpBar.h / 2, perc * POSITIONS.battlePlayerBox.hpBar.w, POSITIONS.battlePlayerBox.hpBar.h / 2);
 }
 
 function drawText_anywhere(textColor = "white") {

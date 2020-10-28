@@ -12,8 +12,18 @@ var inTransition = false;
 var charIndex = 0; // per char, index in array
 var lineIndex = 0; // per line
 
-var CMODE = DRAWMODE.BATTLE_VS; // mode of the game
+var CMODE = DRAWMODE.BATTLE_DEFAULT; // mode of the game
 var NMODE = -1;
+
+var GAME = {
+    player: {
+        hp: Math.floor(Math.random() * 300),
+        exp: Math.random()
+    }, opponent: {
+        hp: Math.floor(Math.random() * 1000)
+    }
+}
+
 
 var textures = {
     introBG: null,
@@ -373,15 +383,21 @@ function drawFrame() {
         } else if(CMODE == DRAWMODE.BATTLE_VS) {
             // dev
             drawText_dev("dev todo");
+        } else if(BASEMODE >= DRAWMODE.BATTLE_DEFAULT && BASEMODE <= DRAWMODE.BATTLE_FOCUS_FOE) {
+            // background
+            ctx_top.restore();
+            ctx_top.drawImage(textures.battleBG, 0, 0, canvas_top.width, canvas_top.height);
+
+            // opponent
+            drawOpponentBase();
+            // opponent info
+            drawOpponentInfo();
+
+            // player
+            drawPlayerBase();
+            // player info
+            drawPlayerInfo();
         }
-
-
-        // drawBattleBG();
-
-        // drawOpponentBase();
-        // drawOpponentInfo();
-        // drawPlayerBase();
-        // drawPlayerInfo();
 
         // drawMessageBox();
 
