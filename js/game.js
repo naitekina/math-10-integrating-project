@@ -12,8 +12,9 @@ var inTransition = false;
 var charIndex = 0; // per char, index in array
 var lineIndex = 0; // per line
 
-var CMODE = DRAWMODE.BATTLE_DEFAULT; // mode of the game
+var CMODE = DRAWMODE.LOADING.BASE; // mode of the game
 var NMODE = -1;
+var bgMode = -1;
 
 var GAME = {
     player: {
@@ -30,6 +31,7 @@ var textures = {
     introBase: null,
     overlayMessageBox: null,
 
+    hoodedFigureTP: null,
     hoodedFigure: null,
 
     defaultBG: null,
@@ -88,6 +90,10 @@ function loadTextures() {
         textures.overlayMessageBox.onload = onLoadedFunction;
         textures.overlayMessageBox.src = "./img/game/overlay_message.png";
 
+
+        textures.hoodedFigureTP = new Image();
+        textures.hoodedFigureTP.onload = onLoadedFunction;
+        textures.hoodedFigureTP.src = "./img/story_hood_tp.png";
 
         textures.hoodedFigure = new Image();
         textures.hoodedFigure.onload = onLoadedFunction;
@@ -164,36 +170,7 @@ function handleEndTransition() {
 
     console.log("end transition " + CMODE + " " + NMODE);
 
-    if(CMODE == DRAWMODE.LOADING.BASE) {
-        CMODE = NMODE; // IDLE
-        NMODE = DRAWMODE.LOADING.TRANSITION_FADE;
-        setTrackFrame(2.0 * FPS);
-    } else if(CMODE == DRAWMODE.LOADING.IDLE) {
-        CMODE = NMODE; // TRANSITION_FADE
-        NMODE = DRAWMODE.LOADING.IDLE_BLACK;
-        setTrackFrame(0.5 * FPS);
-    } else if(CMODE == DRAWMODE.LOADING.TRANSITION_FADE) {
-        CMODE = NMODE; // IDLE_BLACK
-        NMODE = DRAWMODE.STORY_HOOD_TP.BASE;
-        setTrackFrame(1.0 * FPS);
-    } else if(CMODE == DRAWMODE.LOADING.IDLE_BLACK) {
-        CMODE = NMODE; // STORY_HOOD_TP
-        NMODE = DRAWMODE.STORY_HOOD_TP.TRANSITION_FADE;
-        setTrackFrame(2.0 * FPS);
-    } else if(CMODE == DRAWMODE.STORY_HOOD_TP.BASE) {
-        CMODE = NMODE; // TRANSITION_FADE
-        NMODE = DRAWMODE.STORY_HOOD_TP.IDLE_BLACK;
-        setTrackFrame(0.5 * FPS);
-    } else if(CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADE) {
-        CMODE = NMODE; // IDLE_BLACK
-        NMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE;
-        setTrackFrame(1.0 * FPS);
-    } else if(CMODE == DRAWMODE.STORY_HOOD_TP.IDLE_BLACK) {
-        CMODE = NMODE; // STORY SPOTLIGHT 1
-        setTrackFrame(1.0 * FPS);
-    } else {
-        CMODE = NMODE;
-    }
+    CMODE = NMODE;
 }
 
 function setTrackFrame(max, next = null) {
@@ -226,6 +203,9 @@ function drawFrame() {
         var BASEMODE = Math.floor(CMODE);
         
         if(BASEMODE == DRAWMODE.LOADING.BASE) {
+            if(bgMode != BASEMODE)
+                changeBackground(null, "black");
+
             if(CMODE != DRAWMODE.LOADING.IDLE_BLACK) {
                 // loading... text
                 ctx_top.restore();
@@ -249,26 +229,29 @@ function drawFrame() {
             }
 
             if(CMODE == DRAWMODE.LOADING.BASE && numLoaded >= maxNumLoaded) {
-                setTrackFrame(1.0 * FPS);
-
                 CMODE = DRAWMODE.LOADING.IDLE;
-                NMODE = DRAWMODE.LOADING.TRANSITION_FADE;
+                setTrackFrame(2.0 * FPS, DRAWMODE.LOADING.TRANSITION_FADE);
             }
             
             if(CMODE == DRAWMODE.LOADING.TRANSITION_FADE) {
+                if(!keepTrackOfFrame)
+                    setTrackFrame(1.0 * FPS, DRAWMODE.LOADING.IDLE_BLACK);
+
                 ctx_top.restore();
                 ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
                 ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
             }
-        } else if(BASEMODE == DRAWMODE.STORY_HOOD_TP.BASE) {
-            ctx_top.restore();
 
+            if(!keepTrackOfFrame && CMODE == DRAWMODE.LOADING.IDLE_BLACK)
+                setTrackFrame(2.0 * FPS, DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN)
+        } else if(BASEMODE == DRAWMODE.STORY_HOOD_TP.BASE) {
+            if(bgMode != BASEMODE)
+                changeBackground("./img/story_hood_tp.png", "black");
+
+            ctx_top.restore();
             if(CMODE != DRAWMODE.STORY_HOOD_TP.IDLE_BLACK) {
                 // hooded figure
-                ctx_top.fillStyle = "#ffffff";
-                ctx_top.font = "48px Pixelade";
-                ctx_top.textAlign = "center";
-                ctx_top.fillText("insert hooded figure", canvas_top.width / 2, canvas_top.height / 2);
+                ctx_top.drawImage(textures.hoodedFigureTP, 0, 0, canvas_top.width, canvas_top.height);
                 
                 // circular gradient
                 var cgrad = ctx_top.createRadialGradient(canvas_top.width / 2, canvas_top.height / 5 * 3, 32, canvas_top.width / 2, canvas_top.height / 5 * 3, canvas_top.width / 2);
@@ -279,15 +262,30 @@ function drawFrame() {
                 ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
 
                 // message box
-                drawOverlayMessageBox("text 1", "text 2", "center", "#ffffff", "rgba(127,127,127,0.5)");
+                drawFightMessageBox("text 1", "text 2", "center", "#ffffff", "rgba(127,127,127,0.2)");
             }
 
-            if(CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADE) {
+            if(CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN || CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEOUT) {
+                if(!keepTrackOfFrame)
+                    setTrackFrame(
+                        1.0 * FPS,
+                        CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN ? DRAWMODE.STORY_HOOD_TP.IDLE : DRAWMODE.STORY_HOOD_TP.IDLE_BLACK);
+
                 ctx_top.restore();
-                ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
+                ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN ? 1.0 : 0.0, CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN ? 0.0 : 1.0, frameNum, maxFrameNum) + ")";
                 ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
+
+                changeBackground(null, "rgba(0,0,0," + transitionValue(CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN ? 1.0 : 0.5, CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN ? 0.5 : 1.0, frameNum, maxFrameNum) + ")");
             }
+
+            if(!keepTrackOfFrame && CMODE == DRAWMODE.STORY_HOOD_TP.IDLE)
+                setTrackFrame(3.0 * FPS, DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEOUT);
+            else if(!keepTrackOfFrame && CMODE == DRAWMODE.STORY_HOOD_TP.IDLE_BLACK)
+                setTrackFrame(3.0 * FPS, DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1);
         } else if(BASEMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE || BASEMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2.BASE) {
+            if(bgMode != BASEMODE)
+                changeBackground(null, "#3a3a3a");
+            
             ctx_top.restore();
             ctx_top.fillStyle = "#ffffff";
             ctx_top.fillRect(0,0,canvas_top.width,canvas_top.height);
@@ -313,16 +311,8 @@ function drawFrame() {
             ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
 
             // press anywhere
-            if(CMODE != DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE || CMODE != DRAWMODE.STORY_HOOD_SPOTLIGHT_2.BASE) {
+            if(CMODE != DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE || CMODE != DRAWMODE.STORY_HOOD_SPOTLIGHT_2.BASE)
                 drawText_anywhere();
-
-                // ctx_bot.restore();
-                // ctx_bot.fillStyle = "#ffffff";
-                // ctx_bot.font = "32px PixelOperatorBold";
-                // ctx_bot.textAlign = "center";
-                // ctx_bot.fillText("Press anywhere here to continue.", canvas_bot.width / 2, canvas_bot.height / 2);
-            }
-
 
             if(!keepTrackOfFrame && CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE)
                 setTrackFrame(2.0 * FPS, DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1);
@@ -338,6 +328,9 @@ function drawFrame() {
             else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE2)
                 drawOverlayMessageBox("text3", "text4");
         } else if(BASEMODE == DRAWMODE.STORY_FEATURE.BASE) {
+            if(bgMode != BASEMODE)
+                changeBackground(null, "black");
+            
             // figure
             drawText_dev("insert sir calvin");
 
@@ -354,6 +347,9 @@ function drawFrame() {
             else if(CMODE == DRAWMODE.STORY_FEATURE.LINE2)
                 drawFightMessageBox("text3", "text4", "left", "white", "rgba(255,255,255,0.3)");
         } else if(CMODE == DRAWMODE.STORY_HUDDLE) {
+            if(bgMode != CMODE)
+                changeBackground(null, "black");
+
             // figure
             drawText_dev("insert huddle");
             
@@ -363,6 +359,9 @@ function drawFrame() {
             // overlay message
             drawFightMessageBox("text1", "text2", "center", "white", "rgba(255,255,255,0.3)");
         } else if(CMODE == DRAWMODE.STORY_CRASH) {
+            if(bgMode != CMODE)
+                changeBackground(null, "black");
+            
             // figure
             drawText_dev("insert crash");
 
@@ -372,6 +371,8 @@ function drawFrame() {
             // overlay message
             drawFightMessageBox("text1", "text2", "center", "white", "rgba(255,255,255,0.3)")
         } else if(CMODE == DRAWMODE.STORY_APPEAR) {
+            if(bgMode != CMODE)
+                changeBackground(null, "black");
             // figure
             drawText_dev("insert appear");
 
@@ -384,6 +385,9 @@ function drawFrame() {
             // dev
             drawText_dev("dev todo");
         } else if(BASEMODE >= DRAWMODE.BATTLE_DEFAULT && BASEMODE <= DRAWMODE.BATTLE_FOCUS_FOE) {
+            if(bgMode != BASEMODE)
+                changeBackground("./img/game/elite8_bg.png", "rgba(0,0,0,0.5)");
+
             // background
             ctx_top.restore();
             ctx_top.drawImage(textures.battleBG, 0, 0, canvas_top.width, canvas_top.height);
@@ -449,10 +453,17 @@ function handleClick(e) {
     else if(CMODE == DRAWMODE.STORY_CRASH)
         CMODE = DRAWMODE.STORY_APPEAR;
     else if(CMODE == DRAWMODE.STORY_APPEAR)
-        CMODE = DRAWMODE.BATTLE_VS;
+        CMODE = DRAWMODE.BATTLE_DEFAULT;
 }
 
 
 function changeMode(m) {
     CMODE = m;
+}
+
+function changeBackground(url, color) {
+    bgMode = Math.floor(CMODE);
+
+    if(url) $("#game-screen-background").css("background-image", "url(\"" + url + "\")");
+    $("#game-screen-background-overlay").css("background-color", color);
 }

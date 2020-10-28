@@ -10,8 +10,10 @@ const DRAWMODE = {
 
     STORY_HOOD_TP: {
         BASE: 10,
-        TRANSITION_FADE: 10.1,
-        IDLE_BLACK: 10.2
+        TRANSITION_FADEIN: 10.1,
+        IDLE: 10.2,
+        TRANSITION_FADEOUT: 10.3,
+        IDLE_BLACK: 10.4
     },
     STORY_HOOD_SPOTLIGHT_1: {
         BASE: 11,
