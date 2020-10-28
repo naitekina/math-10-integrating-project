@@ -397,6 +397,19 @@ function drawFrame() {
             drawPlayerBase();
             // player info
             drawPlayerInfo();
+
+
+            // bottom screen
+            ctx_bot.restore();
+            if(CMODE == DRAWMODE.BATTLE_DEFAULT)
+                ctx_bot.drawImage(textures.battleBGBase, 0, 0, canvas_bot.width, canvas_bot.height);
+            else if(CMODE == DRAWMODE.BATTLE_MAIN)
+                ctx_bot.drawImage(textures.battleBGMain, 0, 0, canvas_bot.width, canvas_bot.height);
+            else if(CMODE == DRAWMODE.BATTLE_FIGHT)
+                ctx_bot.drawImage(textures.battleBGFight, 0, 0, canvas_bot.width, canvas_bot.height);
+            
+            // time
+            drawTime();
         }
 
         // drawMessageBox();

@@ -286,9 +286,16 @@ function drawBottomBackground() {
 
 function drawTime() {
     var d = new Date();
-    var H = d.getHours();
-    var M = d.getMinutes();
+    var H = d.getHours().toString();
+    var M = d.getMinutes().toString();
+
+    if(H.length == 1) H = "0" + H;
+    if(M.length == 1) M = "0" + M;
 
     ctx_bot.restore();
     
+    ctx_bot.fillStyle = "#ffffff";
+    ctx_bot.font = "16px Pixelmix";
+    ctx_bot.textAlign = "left";
+    ctx_bot.fillText(H + " : " + M, POSITIONS.time.posL, POSITIONS.time.posT);
 }

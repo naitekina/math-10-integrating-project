@@ -154,6 +154,9 @@ const POSITIONS = {
         posL: -104,
         posB: 224,
         scale: 1.25
+    }, time: {
+        posL: 24,
+        posT: 20
     }
 };
 
