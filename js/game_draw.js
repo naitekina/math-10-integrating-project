@@ -10,6 +10,12 @@ function drawOpponentBase() {
         POSITIONS.battleFoeBase.posT,
         textures.battleBase.width * POSITIONS.battleFoeBase.scale,
         textures.battleBase.height * POSITIONS.battleFoeBase.scale);
+    ctx_top.drawImage(
+        textures.battle_foe,
+        canvas_top.width - (textures.battle_foe.width * POSITIONS.battleFoe.scale) - POSITIONS.battleFoe.posR,
+        POSITIONS.battleFoe.posT,
+        textures.battle_foe.width * POSITIONS.battleFoe.scale,
+        textures.battle_foe.height * POSITIONS.battleFoe.scale);
 }
 
 function drawPlayerBase() {
@@ -21,6 +27,12 @@ function drawPlayerBase() {
         canvas_top.height - POSITIONS.battlePlayerBase.posB,
         textures.battleBase.width * POSITIONS.battlePlayerBase.scale,
         textures.battleBase.height * POSITIONS.battlePlayerBase.scale);
+    ctx_top.drawImage(
+        textures.battle_players,
+        POSITIONS.battlePlayer.posL,
+        canvas_top.height - (textures.battle_players.height * POSITIONS.battlePlayer.scale) - POSITIONS.battlePlayer.posB,
+        textures.battle_players.width * POSITIONS.battlePlayer.scale,
+        textures.battle_players.height * POSITIONS.battlePlayer.scale);
 }
 
 
@@ -223,7 +235,7 @@ function drawOverlayMessageBox(text1, text2 = "", textAlign = "left") {
         canvas_top.height - (textures.overlayMessageBox.height / 2) + POSITIONS.overlayMessageBox.text.relPosT2);
 }
 
-function drawFightMessageBox(text1, text2, textAlign = "left", textColor = "#ffffff", backgroundColor = "rgba(0,0,0,0.5)", borderColor = "rgba(127,0,0,0.5)") {
+function drawFightMessageBox(text1, text2 = "", textAlign = "left", textColor = "#ffffff", backgroundColor = "rgba(0,0,0,0.5)", borderColor = "rgba(127,0,0,0.5)") {
     ctx_top.restore();
 
     // transparent background

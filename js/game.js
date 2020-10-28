@@ -39,7 +39,7 @@ var textures = {
     battleBGFight: null,
 
     battle_players: null,
-    battle_sir: null,
+    battle_foe: null,
 
     sex: null,
     battleFontAlphanum: null,
@@ -114,11 +114,11 @@ function loadTextures() {
 
         textures.battle_players = new Image();
         textures.battle_players.onload = onLoadedFunction;
-        textures.battle_players.src = "./img/game/people/battle_players.png";
+        textures.battle_players.src = "./img/game/people/battle_players_3x.png";
 
-        textures.battle_sir = new Image();
-        textures.battle_sir.onload = onLoadedFunction;
-        textures.battle_sir.src = "./img/game/people/battle_sir.png";
+        textures.battle_foe = new Image();
+        textures.battle_foe.onload = onLoadedFunction;
+        textures.battle_foe.src = "./img/game/people/battle_sir_3x.png";
 
 
         textures.sex = new Image();
@@ -397,6 +397,9 @@ function drawFrame() {
             drawPlayerBase();
             // player info
             drawPlayerInfo();
+
+            // fight message box
+            drawFightMessageBox("What will you do?");
 
 
             // bottom screen

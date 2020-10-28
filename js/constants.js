@@ -121,11 +121,15 @@ const POSITIONS = {
         }
     }, battleFoeBase: {
         posR: -16,
-        posT: 72,
+        posT: 96,
         scale: 0.5
+    }, battleFoe: {
+        posR: 28,
+        posT: 0,
+        scale: 1 / 3 * 2
     }, battlePlayerBox: {
         posR: 0,
-        posT: 200,
+        posT: 184,
         name: {
             relPosL: 24,
             relPosT: -4
@@ -151,9 +155,13 @@ const POSITIONS = {
             h: 2
         }
     }, battlePlayerBase: {
-        posL: -104,
-        posB: 224,
-        scale: 1.25
+        posL: -80,
+        posB: 140,
+        scale: 1.0
+    }, battlePlayer: {
+        posL: 0,
+        posB: 0,
+        scale: 1 / 3 * 2
     }, time: {
         posL: 24,
         posT: 20
