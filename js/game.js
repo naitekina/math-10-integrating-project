@@ -12,7 +12,7 @@ var inTransition = false;
 var charIndex = 0; // per char, index in array
 var lineIndex = 0; // per line
 
-var CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE; // mode of the game
+var CMODE = DRAWMODE.BATTLE_VS; // mode of the game
 var NMODE = -1;
 
 var textures = {
@@ -277,7 +277,7 @@ function drawFrame() {
                 ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
                 ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
             }
-        } else if(BASEMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE) {
+        } else if(BASEMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE || BASEMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2.BASE) {
             ctx_top.restore();
             ctx_top.fillStyle = "#ffffff";
             ctx_top.fillRect(0,0,canvas_top.width,canvas_top.height);
@@ -303,27 +303,76 @@ function drawFrame() {
             ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
 
             // press anywhere
-            ctx_bot.restore();
-            ctx_bot.fillStyle = "#ffffff";
-            ctx_bot.font = "32px PixelOperatorBold";
-            ctx_bot.textAlign = "center";
-            ctx_bot.fillText("Press anywhere here to continue.", canvas_bot.width / 2, canvas_bot.height / 2);
+            if(CMODE != DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE || CMODE != DRAWMODE.STORY_HOOD_SPOTLIGHT_2.BASE) {
+                drawText_anywhere();
 
-
-            if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE) {
-                CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1;
+                // ctx_bot.restore();
+                // ctx_bot.fillStyle = "#ffffff";
+                // ctx_bot.font = "32px PixelOperatorBold";
+                // ctx_bot.textAlign = "center";
+                // ctx_bot.fillText("Press anywhere here to continue.", canvas_bot.width / 2, canvas_bot.height / 2);
             }
+
+
+            if(!keepTrackOfFrame && CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE)
+                setTrackFrame(2.0 * FPS, DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1);
 
             // overlay message
-            if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1) {
-                drawOverlayMessageBox(SCRIPT.STORY_HOOD_SPOTLIGHT_1[0], SCRIPT.STORY_HOOD_SPOTLIGHT_1[1]);
-                // if(!keepTrackOfFrame)
-                //     setTrackFrame(5.0 * FPS, DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE2);
-            } else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE2) {
-                drawOverlayMessageBox(SCRIPT.STORY_HOOD_SPOTLIGHT_1[2], SCRIPT.STORY_HOOD_SPOTLIGHT_1[3]);
-                // if(!keepTrackOfFrame)
-                //     setTrackFrame(5.0 * FPS, DRAWMODE.STORY_FEATURE);
-            }
+            if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1)
+                drawOverlayMessageBox("text1", "text2");
+            else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE2)
+                drawOverlayMessageBox("text3", "text4");
+            
+            else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE1)
+                drawOverlayMessageBox("text1", "text2");
+            else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE2)
+                drawOverlayMessageBox("text3", "text4");
+        } else if(BASEMODE == DRAWMODE.STORY_FEATURE.BASE) {
+            // figure
+            drawText_dev("insert sir calvin");
+
+            // bottom screen
+
+            // press anywhere
+            drawText_anywhere();
+
+            // overlay mesage
+            if(CMODE == DRAWMODE.STORY_FEATURE.BASE)
+                drawFightMessageBox("Calvin Sia", "text2", "center", "white", "rgba(255,255,255,0.3)");
+            else if(CMODE == DRAWMODE.STORY_FEATURE.LINE1)
+                drawFightMessageBox("text1", "text2", "left", "white", "rgba(255,255,255,0.3)");
+            else if(CMODE == DRAWMODE.STORY_FEATURE.LINE2)
+                drawFightMessageBox("text3", "text4", "left", "white", "rgba(255,255,255,0.3)");
+        } else if(CMODE == DRAWMODE.STORY_HUDDLE) {
+            // figure
+            drawText_dev("insert huddle");
+            
+            // press anywhere
+            drawText_anywhere();
+            
+            // overlay message
+            drawFightMessageBox("text1", "text2", "center", "white", "rgba(255,255,255,0.3)");
+        } else if(CMODE == DRAWMODE.STORY_CRASH) {
+            // figure
+            drawText_dev("insert crash");
+
+            // press anywhere
+            drawText_anywhere();
+
+            // overlay message
+            drawFightMessageBox("text1", "text2", "center", "white", "rgba(255,255,255,0.3)")
+        } else if(CMODE == DRAWMODE.STORY_APPEAR) {
+            // figure
+            drawText_dev("insert appear");
+
+            // press anywhere
+            drawText_anywhere();
+
+            // overlay message
+            drawFightMessageBox("text1", "text2", "center", "white", "rgba(255,255,255,0.3)")
+        } else if(CMODE == DRAWMODE.BATTLE_VS) {
+            // dev
+            drawText_dev("dev todo");
         }
 
 
@@ -353,261 +402,24 @@ function handleClick(e) {
         CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE2;
     else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE2)
         CMODE = DRAWMODE.STORY_FEATURE.BASE;
-    // alert("x:" + x + ", y:" + y + " || width:" + canvas_bot.offsetWidth + ", height:" + canvas_bot.offsetHeight);
+    else if(CMODE == DRAWMODE.STORY_FEATURE.BASE)
+        CMODE = DRAWMODE.STORY_FEATURE.LINE1;
+    else if(CMODE == DRAWMODE.STORY_FEATURE.LINE1)
+        CMODE = DRAWMODE.STORY_FEATURE.LINE2;
+    else if(CMODE == DRAWMODE.STORY_FEATURE.LINE2)
+        CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE1;
+    else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE1)
+        CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE2;
+    else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE2)
+        CMODE = DRAWMODE.STORY_HUDDLE;
+    else if(CMODE == DRAWMODE.STORY_HUDDLE)
+        CMODE = DRAWMODE.STORY_CRASH;
+    else if(CMODE == DRAWMODE.STORY_CRASH)
+        CMODE = DRAWMODE.STORY_APPEAR;
+    else if(CMODE == DRAWMODE.STORY_APPEAR)
+        CMODE = DRAWMODE.BATTLE_VS;
 }
 
-
-function drawBattleBG() {
-    ctx_top.restore();
-
-    ctx_top.drawImage(textures.battleBG, 0, 0, canvas_top.width, canvas_top.height);
-}
-
-/*
-* BASE
-*/
-function drawOpponentBase() {
-    ctx_top.restore();
-
-    ctx_top.drawImage(
-        textures.battleBase,
-        canvas_top.width - (textures.battleBase.width * POSITIONS.battleFoeBase.scale) - POSITIONS.battleFoeBase.posR,
-        POSITIONS.battleFoeBase.posT,
-        textures.battleBase.width * POSITIONS.battleFoeBase.scale,
-        textures.battleBase.height * POSITIONS.battleFoeBase.scale);
-}
-
-function drawPlayerBase() {
-    ctx_top.restore();
-
-    ctx_top.drawImage(
-        textures.battleBase,
-        POSITIONS.battlePlayerBase.posL,
-        canvas_top.height - POSITIONS.battlePlayerBase.posB,
-        textures.battleBase.width * POSITIONS.battlePlayerBase.scale,
-        textures.battleBase.height * POSITIONS.battlePlayerBase.scale);
-}
-
-
-/*
-* INFO
-*/
-function drawOpponentInfo() {
-    ctx_top.restore();
-
-    // background sprite
-    ctx_top.drawImage(textures.battleFoeBox, POSITIONS.battleFoeBox.posL, POSITIONS.battleFoeBox.posT);
-
-    // name
-    drawText(
-        "Sir Calvin",
-        POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.name.relPosL, 
-        POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.name.relPosT);
-
-    // sex
-    drawSex(
-        SEX.MALE,
-        POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.sex.relPosL,
-        POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.sex.relPosT);
-
-    // level number
-    drawText(
-        "100",
-        POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.level.relPosL,
-        POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.level.relPosT);
-
-    // hp bar
-    ctx_top.fillStyle = "#00ff00";
-    ctx_top.fillRect(POSITIONS.battleFoeBox.posL + POSITIONS.battleFoeBox.hpBar.relPosL, POSITIONS.battleFoeBox.posT + POSITIONS.battleFoeBox.hpBar.relPosT, POSITIONS.battleFoeBox.hpBar.w, POSITIONS.battleFoeBox.hpBar.h);
-    // drawHPBarFill();
-}
-
-function drawPlayerInfo() {
-    ctx_top.restore();
-
-    var posX = canvas_top.width - POSITIONS.battlePlayerBox.posR - textures.battlePlayerBox.width;
-
-    // background sprite
-    ctx_top.drawImage(textures.battlePlayerBox, posX, POSITIONS.battlePlayerBox.posT);
-
-    // name
-    drawText(
-        "Group Four",
-        posX + POSITIONS.battlePlayerBox.name.relPosL,
-        POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.name.relPosT);
-
-    // level number
-    drawText(
-        "25",
-        posX + POSITIONS.battlePlayerBox.level.relPosL,
-        POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.level.relPosT);
-
-    // hp bar
-    ctx_top.fillStyle = "#00ff00";
-    ctx_top.fillRect(posX + POSITIONS.battlePlayerBox.hpBar.relPosL, POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpBar.relPosT, POSITIONS.battlePlayerBox.hpBar.w, POSITIONS.battlePlayerBox.hpBar.h);
-
-    // hp num
-    drawText_HPNum(
-        100,
-        posX + POSITIONS.battlePlayerBox.hpNum.hp.relPosL_End,
-        POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpNum.relPosT);
-    drawText_HPTotal(
-        100,
-        posX + POSITIONS.battlePlayerBox.hpNum.total.relPosL,
-        POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.hpNum.relPosT);
-
-    // exp bar
-    ctx_top.fillRect(posX + POSITIONS.battlePlayerBox.expBar.relPosL, POSITIONS.battlePlayerBox.posT + POSITIONS.battlePlayerBox.expBar.relPosT, POSITIONS.battlePlayerBox.expBar.w, POSITIONS.battlePlayerBox.expBar.h);
-}
-
-
-/*
-* TEXT
-*/
-function drawText(text, x, canvasY) {
-    var canvasX = x;
-
-    for(var i = 0; i < text.length; i++) {
-        var iA = FONT_ALPHANUM_CHARS.indexOf(text[i]);
-        var iX = iA;
-        var iY = 0;
-        
-        if(iX >= 26) {
-            iX -= 26 * Math.floor(iA / 26);
-            iY = Math.floor(iA / 26);
-        }
-
-        // char is 5x9, with space: 6x10;
-        // char is 10x18, with space: 12x20
-        if(iX == -1) {
-            canvasX += 10;
-            continue;
-        }
-
-        ctx_top.drawImage(textures.battleFontAlphanum, iX * 12, iY * 20, 10, 18, canvasX, canvasY, 10, 18);
-        canvasX += FONT_ALPHANUM_SIZES[iA];
-    }
-}
-
-function drawText_HPTotal(level, x, canvasY) {
-    var text = level.toString();
-    var canvasX = x;
-
-    for(var i = 0; i < text.length; i++) {
-        var iX = FONT_LEVEL_CHARS.indexOf(text[i]);
-
-        // char is 16x16 with space
-        if(iX == -1) continue;
-
-        ctx_top.drawImage(textures.battleFontHp, iX * 16, 0, 16, 16, canvasX, canvasY, 16, 16);
-        canvasX += 16;
-    }
-}
-
-function drawText_HPNum(hp, x, canvasY) {
-    var text = hp.toString();
-    
-    drawText_HPTotal(hp, x - (text.length * 16), canvasY);
-}
-
-function drawSex(s, canvasX, canvasY) {
-    // texture is 14x20, 16x20 with space
-    ctx_top.drawImage(textures.sex, s * 16, 0, 14, 20, canvasX, canvasY, 14, 20);
-}
-
-
-/*
-* MESSAGE BOX
-*/
-function drawOverlayMessageBox(text1, text2 = "", textAlign = "left") {
-    ctx_top.restore();
-
-    // message box
-    ctx_top.drawImage(textures.overlayMessageBox, 0, canvas_top.height - textures.overlayMessageBox.height);
-
-    // text
-    ctx_top.font = "32px PixelOperatorBold";
-    ctx_top.fillStyle = "#000000";
-    ctx_top.textAlign = textAlign;
-    ctx_top.fillText(
-        text1,
-        textAlign == "left" ? (POSITIONS.overlayMessageBox.text.marginLR) : ((textAlign == "right") ? (canvas_top.width - POSITIONS.overlayMessageBox.text.marginLR) : (canvas_top.width / 2)),
-        canvas_top.height - (textures.overlayMessageBox.height / 2) + POSITIONS.overlayMessageBox.text.relPosT1);
-    ctx_top.fillText(
-        text2,
-        textAlign == "left" ? (POSITIONS.overlayMessageBox.text.marginLR) : ((textAlign == "right") ? (canvas_top.width - POSITIONS.overlayMessageBox.text.marginLR) : (canvas_top.width / 2)),
-        canvas_top.height - (textures.overlayMessageBox.height / 2) + POSITIONS.overlayMessageBox.text.relPosT2);
-}
-
-function drawFightMessageBox(text1, text2, textAlign = "left", textColor = "#ffffff", backgroundColor = "rgba(0,0,0,0.5)", borderColor = "rgba(127,0,0,0.5)") {
-    ctx_top.restore();
-
-    // transparent background
-    ctx_top.fillStyle = backgroundColor;
-    ctx_top.fillRect(
-        0,
-        canvas_top.height - POSITIONS.fightMessageBox.posB_Top,
-        canvas_top.width,
-        POSITIONS.fightMessageBox.height);
-
-    // transparent border
-    if(CMODE == DRAWMODE.BATTLE_DEFAULT) {
-        ctx_top.fillStyle = borderColor;
-        ctx_top.fillRect(
-            0,
-            canvas_top.height - POSITIONS.fightMessageBox.posB_Top - POSITIONS.fightMessageBox.border.height,
-            canvas_top.width,
-            POSITIONS.fightMessageBox.border.height);
-        ctx_top.fillRect(
-            0,
-            canvas_top.height - POSITIONS.fightMessageBox.posB_Top + POSITIONS.fightMessageBox.height,
-            canvas_top.width,
-            POSITIONS.fightMessageBox.border.height);
-    }
-
-    // text
-    ctx_top.font = "32px PixelOperatorBold";
-    ctx_top.fillStyle = textColor;
-    ctx_top.textAlign = textAlign;
-    ctx_top.fillText(
-        text1,
-        textAlign == "left" ? (POSITIONS.fightMessageBox.text.marginLR) : ((textAlign == "right") ? (canvas_top.width - POSITIONS.fightMessageBox.text.marginLR) : (canvas_top.width / 2)),
-        canvas_top.height - POSITIONS.fightMessageBox.posB_Top + (POSITIONS.fightMessageBox.height / 2) + POSITIONS.fightMessageBox.text.relPosT1);
-    ctx_top.fillText(
-        text2,
-        textAlign == "left" ? (POSITIONS.fightMessageBox.text.marginLR) : ((textAlign == "right") ? (canvas_top.width - POSITIONS.fightMessageBox.text.marginLR) : (canvas_top.width / 2)),
-        canvas_top.height - POSITIONS.fightMessageBox.posB_Top + (POSITIONS.fightMessageBox.height / 2) + POSITIONS.fightMessageBox.text.relPosT2);
-}
-
-
-function drawBottomBackground() {
-    ctx_bot.restore();
-
-    if(CMODE == DRAWMODE.BLACK) {
-        ctx_bot.fillStyle = "#000000";
-        ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
-    } else if(CMODE == DRAWMODE.DEFAULT) {
-        ctx_bot.drawImage(textures.defaultBG, 0, 0, canvas_bot.width, canvas_bot.height);
-    } else if(CMODE == DRAWMODE.BASE) {
-        ctx_bot.drawImage(textures.battleBGBase, 0, 0, canvas_bot.width, canvas_bot.height);
-        drawTime();
-    } else if(CMODE == DRAWMODE.MAIN) {
-        ctx_bot.drawImage(textures.battleBGMain, 0, 0, canvas_bot.width, canvas_bot.height);
-        drawTime();
-    } else if(CMODE == DRAWMODE.FIGHT) {
-        ctx_bot.drawImage(textures.battleBGFight, 0, 0, canvas_bot.width, canvas_bot.height);
-        drawTime();
-    }
-}
-
-function drawTime() {
-    var d = new Date();
-    var H = d.getHours();
-    var M = d.getMinutes();
-
-    ctx_bot.restore();
-    
-}
 
 function changeMode(m) {
     CMODE = m;
