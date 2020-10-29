@@ -34,7 +34,7 @@ html, body {
     padding: 0;
 }
 
-#main-screen {
+#interact-screen, #main-screen {
     box-sizing: border-box;
     width: 100%;
     height: 100%;
@@ -47,33 +47,23 @@ html, body {
     padding: 5vh;
 
     background-color: black;
-    display: none;
+    /* display: none; */
 
     color: white;
     text-align: center;
 }
 
-#story {
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 9;
-
-    padding: 5vh;
-
-    background-color: black;
-    display: none;
-
-    color: white;
-    text-align: center;
+#interact-screen {
+    z-index: 15;
 }
 
-#story-text {
-    font-family: "Pixelade";
+#interact-screen > h1 {
+    margin-top: 22.5vh;
+
+    color: white;
+    font-family: "PixelOperatorBold";
+    font-size: 15vh;
+    text-align: center;
 }
 
 #game-screen {
@@ -122,4 +112,8 @@ html, body {
     z-index: 1;
 
     background-color: rgba(0, 0, 0, 1.0);
+}
+
+audio {
+    display: none;
 }

@@ -92,7 +92,7 @@ const SCRIPT = {
                 used: "Group Four used",
                 names: [
                     "Clarification",
-                    "Thank you sir",
+                    "\"Thank you sir\"",
                     "Cringe at joke",
                     "Laugh at joke"
                 ]
@@ -107,7 +107,11 @@ const SCRIPT = {
                     "Kahoot Session"
                 ]
             }
-        }
+        },
+        effectiveness: [
+            "It's not very effective...",
+            "It's super effective!"
+        ]
     }
 };
 

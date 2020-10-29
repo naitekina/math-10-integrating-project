@@ -29,14 +29,17 @@ function battleClick(x, y) {
         if(x >= 172 && x <= 768 && y >= 216 && y <= 432)
             CMODE = DRAWMODE.BATTLE_FIGHT;
         else if(x <= 284 && y >= 496) {
+            playInvalidClickSound();
             setTrackFrame(2.0 * FPS, -10);
             GAME.messageBox.show = true;
             GAME.messageBox.text = SCRIPT.BATTLE.notAllowed;
         } else if(x >= 324 && x <= 616 && y >= 560) {
+            playInvalidClickSound();
             setTrackFrame(2.0 * FPS, -10);
             GAME.messageBox.show = true;
             GAME.messageBox.text = SCRIPT.BATTLE.notAllowed;
         } else if(x >= 656 && y >= 496) {
+            playInvalidClickSound();
             setTrackFrame(2.0 * FPS, -10);
             GAME.messageBox.show = true;
             GAME.messageBox.text = SCRIPT.BATTLE.notAllowed;

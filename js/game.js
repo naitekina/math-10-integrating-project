@@ -10,7 +10,7 @@ var keepTrackOfFrame = false;
 var isIdle = false;
 var inTransition = false;
 
-var CMODE = DRAWMODE.BATTLE_MAIN; // mode of the game
+var CMODE = DRAWMODE.LOADING.BASE; // mode of the game
 var NMODE = -1;
 var bgMode = -1;
 var lineIndex = 0;
@@ -47,6 +47,17 @@ var textures = {
     battlePlayerBox: null
 };
 
+var audio = {
+    theme_opening: null,
+    theme_battle: null,
+
+    click: null,
+    click_invalid: null,
+
+    story_lightning: null,
+    story_crash: null
+};
+
 var onLoadedFunction = function() {
     numLoaded++;
 };
@@ -55,6 +66,17 @@ var maxNumLoaded = Object.keys(textures).length;
 function loaded() { return numLoaded + "/" + maxNumLoaded; }
 
 
+
+function initializeAudio() {
+    audio.theme_opening = document.getElementById("theme-opening");
+    audio.theme_battle = document.getElementById("theme-battle");
+
+    audio.click = document.getElementById("click");
+    audio.click_invalid = document.getElementById("click-invalid");
+
+    audio.story_lightning = document.getElementById("story-lightning");
+    audio.story_crash = document.getElementById("story-crash");
+}
 
 function loadTextures() {
     try {
@@ -248,6 +270,8 @@ function drawFrame() {
                 ctx_top.restore();
                 ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
                 ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
+
+                audio.theme_opening.volume = transitionValue(1.0, 0.0);
             }
 
             if(!keepTrackOfFrame && CMODE == DRAWMODE.LOADING.IDLE_BLACK)
@@ -256,9 +280,14 @@ function drawFrame() {
             if(bgMode != BASEMODE) {
                 changeBackground(null, "black");
                 lineIndex = 0;
-            }
 
-            // play sound
+                // stop opening theme
+                if(!audio.theme_opening.paused)
+                    audio.theme_opening.pause();
+
+                // play sound
+                audio.story_lightning.play();
+            }
 
             // fight message box
             drawFightMessageBox(SCRIPT.STORY_LIGHTNING[lineIndex][0], SCRIPT.STORY_LIGHTNING[lineIndex][1], "center", "white", "rgba(127,127,127,0.2)");
@@ -464,8 +493,11 @@ function drawFrame() {
                 changeBackground(null, "rgba(" + c + "," + c + "," + c + "," + transitionValue(1.0, 0.5) + ")");
             }
         } else if(CMODE == DRAWMODE.STORY_CRASH) {
-            if(bgMode != CMODE)
+            if(bgMode != CMODE) {
                 changeBackground(null, "black");
+
+                audio.story_crash.play();
+            }
             
             // figure
             drawText_dev("insert crash");
@@ -495,6 +527,9 @@ function drawFrame() {
         } else if(BASEMODE >= DRAWMODE.BATTLE_DEFAULT && BASEMODE <= DRAWMODE.BATTLE_FOCUS_FOE) {
             if(bgMode != BASEMODE)
                 changeBackground("./img/game/elite8_bg.png", "rgba(0,0,0,0.5)");
+            
+            if(audio.theme_battle.paused)
+                audio.theme_battle.play();
 
             // background
             ctx_top.restore();
@@ -545,40 +580,48 @@ function handleClick(e) {
     if(x < 0 || x > canvas_bot.offsetWidth || y < 0 || y > canvas_bot.offsetWidth / 4 * 3) return;
 
     if(CMODE == DRAWMODE.STORY_LIGHTNING.IDLE) {
+        playClickSound();
         if(lineIndex == 2)
             CMODE = DRAWMODE.STORY_LIGHTNING.TRANSITION_FADEOUT;
         else
             lineIndex++;
     } else if(CMODE == DRAWMODE.STORY_HOOD_TP.IDLE) {
+        playClickSound();
         if(lineIndex == 1)
             CMODE = DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEOUT;
         else
             lineIndex++;
     } else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.DIALOGUE) {
+        playClickSound();
         if(lineIndex == 5)
             CMODE = DRAWMODE.STORY_FEATURE;
         else
             lineIndex++;
     } else if(CMODE == DRAWMODE.STORY_FEATURE) {
+        playClickSound();
         if(lineIndex == 2)
             CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_2;
         else
             lineIndex++;
     } else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2) {
+        playClickSound();
         if(lineIndex == 4)
             CMODE = DRAWMODE.STORY_STRATEGY;
         else
             lineIndex++;
     } else if(CMODE == DRAWMODE.STORY_STRATEGY) {
+        playClickSound();
         if(lineIndex == 2)
             CMODE = DRAWMODE.STORY_CRASH;
         else
             lineIndex++;
-    } else if(CMODE == DRAWMODE.STORY_CRASH)
+    } else if(CMODE == DRAWMODE.STORY_CRASH) {
+        playClickSound();
         CMODE = DRAWMODE.STORY_APPEAR;
-    else if(CMODE == DRAWMODE.STORY_APPEAR) {
+    } else if(CMODE == DRAWMODE.STORY_APPEAR) {
+        playClickSound();
         if(lineIndex == 2)
-            CMODE = DRAWMODE.BATTLE_DEFAULT;
+            CMODE = DRAWMODE.BATTLE_MAIN;
         else
             lineIndex++;
     } else if(CMODE >= DRAWMODE.BATTLE_DEFAULT && CMODE <= DRAWMODE.BATTLE_FOCUS_FOE) {
