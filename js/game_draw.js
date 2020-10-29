@@ -4,18 +4,49 @@
 function drawOpponentBase() {
     ctx_top.restore();
 
-    ctx_top.drawImage(
-        textures.battleBase,
-        canvas_top.width - (textures.battleBase.width * POSITIONS.battleFoeBase.scale) - POSITIONS.battleFoeBase.posR,
-        POSITIONS.battleFoeBase.posT,
-        textures.battleBase.width * POSITIONS.battleFoeBase.scale,
-        textures.battleBase.height * POSITIONS.battleFoeBase.scale);
-    ctx_top.drawImage(
-        textures.battle_foe,
-        canvas_top.width - (textures.battle_foe.width * POSITIONS.battleFoe.scale) - POSITIONS.battleFoe.posR,
-        POSITIONS.battleFoe.posT,
-        textures.battle_foe.width * POSITIONS.battleFoe.scale,
-        textures.battle_foe.height * POSITIONS.battleFoe.scale);
+    if(!inTransition) {
+        ctx_top.drawImage(
+            textures.battleBase,
+            canvas_top.width - (textures.battleBase.width * (CMODE == DRAWMODE.BATTLE_FOCUS_FOE ? POSITIONS.battleFoeBase.focus.foe.scale : POSITIONS.battleFoeBase.scale)) - (CMODE == DRAWMODE.BATTLE_FOCUS_FOE ? POSITIONS.battleFoeBase.focus.foe.posR : POSITIONS.battleFoeBase.posR),
+            CMODE == DRAWMODE.BATTLE_FOCUS_FOE ? POSITIONS.battleFoeBase.focus.foe.posT : POSITIONS.battleFoeBase.posT,
+            textures.battleBase.width * (CMODE == DRAWMODE.BATTLE_FOCUS_FOE ? POSITIONS.battleFoeBase.focus.foe.scale : POSITIONS.battleFoeBase.scale),
+            textures.battleBase.height * (CMODE == DRAWMODE.BATTLE_FOCUS_FOE ? POSITIONS.battleFoeBase.focus.foe.scale : POSITIONS.battleFoeBase.scale));
+        ctx_top.drawImage(
+            textures.battle_foe,
+            canvas_top.width - (textures.battle_foe.width * (CMODE == DRAWMODE.BATTLE_FOCUS_FOE ? POSITIONS.battleFoe.focus.foe.scale : POSITIONS.battleFoe.scale)) - (CMODE == DRAWMODE.BATTLE_FOCUS_FOE ? POSITIONS.battleFoe.focus.foe.posR : POSITIONS.battleFoe.posR),
+            CMODE == DRAWMODE.BATTLE_FOCUS_FOE ? POSITIONS.battleFoe.focus.foe.posT : POSITIONS.battleFoe.posT,
+            textures.battle_foe.width * (CMODE == DRAWMODE.BATTLE_FOCUS_FOE ? POSITIONS.battleFoe.focus.foe.scale : POSITIONS.battleFoe.scale),
+            textures.battle_foe.height * (CMODE == DRAWMODE.BATTLE_FOCUS_FOE ? POSITIONS.battleFoe.focus.foe.scale : POSITIONS.battleFoe.scale));
+    } else {
+        ctx_top.drawImage(
+            textures.battleBase,
+            transitionValue(
+                canvas_top.width - (textures.battleBase.width * POSITIONS.battleFoeBase.scale) - POSITIONS.battleFoeBase.posR,
+                canvas_top.width - (textures.battleBase.width * POSITIONS.battleFoeBase.focus.foe.scale) - POSITIONS.battleFoeBase.focus.foe.posR),
+            transitionValue(
+                POSITIONS.battleFoeBase.posT,
+                POSITIONS.battleFoeBase.focus.foe.posT),
+            transitionValue(
+                textures.battleBase.width * POSITIONS.battleFoeBase.scale,
+                textures.battleBase.width * POSITIONS.battleFoeBase.focus.foe.scale),
+            transitionValue(
+                textures.battleBase.height * POSITIONS.battleFoeBase.scale,
+                textures.battleBase.height * POSITIONS.battleFoeBase.focus.foe.scale));
+        ctx_top.drawImage(
+            textures.battle_foe,
+            transitionValue(
+                canvas_top.width - (textures.battle_foe.width * POSITIONS.battleFoe.scale) - POSITIONS.battleFoe.posR,
+                canvas_top.width - (textures.battle_foe.width * POSITIONS.battleFoe.focus.foe.scale) - POSITIONS.battleFoe.focus.foe.posR),
+            transitionValue(
+                POSITIONS.battleFoe.posT,
+                POSITIONS.battleFoe.focus.foe.posT),
+            transitionValue(
+                textures.battle_foe.width * POSITIONS.battleFoe.scale,
+                textures.battle_foe.width * POSITIONS.battleFoe.focus.foe.scale),
+            transitionValue(
+                textures.battle_foe.height * POSITIONS.battleFoe.scale,
+                textures.battle_foe.height * POSITIONS.battleFoe.focus.foe.scale));
+    }
 }
 
 function drawPlayerBase() {
@@ -247,7 +278,7 @@ function drawFightMessageBox(text1, text2 = "", textAlign = "left", textColor = 
         POSITIONS.fightMessageBox.height);
 
     // transparent border
-    if(CMODE == DRAWMODE.BATTLE_DEFAULT) {
+    if(CMODE >= DRAWMODE.BATTLE_DEFAULT && CMODE <= DRAWMODE.BATTLE_FOCUS_FOE) {
         ctx_top.fillStyle = borderColor;
         ctx_top.fillRect(
             0,
@@ -275,26 +306,8 @@ function drawFightMessageBox(text1, text2 = "", textAlign = "left", textColor = 
         canvas_top.height - POSITIONS.fightMessageBox.posB_Top + (POSITIONS.fightMessageBox.height / 2) + POSITIONS.fightMessageBox.text.relPosT2);
 }
 
+function drawQuestionBox() {}
 
-function drawBottomBackground() {
-    ctx_bot.restore();
-
-    if(CMODE == DRAWMODE.BLACK) {
-        ctx_bot.fillStyle = "#000000";
-        ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
-    } else if(CMODE == DRAWMODE.DEFAULT) {
-        ctx_bot.drawImage(textures.defaultBG, 0, 0, canvas_bot.width, canvas_bot.height);
-    } else if(CMODE == DRAWMODE.BASE) {
-        ctx_bot.drawImage(textures.battleBGBase, 0, 0, canvas_bot.width, canvas_bot.height);
-        drawTime();
-    } else if(CMODE == DRAWMODE.MAIN) {
-        ctx_bot.drawImage(textures.battleBGMain, 0, 0, canvas_bot.width, canvas_bot.height);
-        drawTime();
-    } else if(CMODE == DRAWMODE.FIGHT) {
-        ctx_bot.drawImage(textures.battleBGFight, 0, 0, canvas_bot.width, canvas_bot.height);
-        drawTime();
-    }
-}
 
 function drawTime() {
     var d = new Date();

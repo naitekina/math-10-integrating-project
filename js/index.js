@@ -6,13 +6,21 @@ function setRandomIcon() {
     document.getElementsByTagName('head')[0].appendChild(link);
 }
 
-function story(mode) {
-    $("#main-screen").fadeOut(500);
+function firstInteraction() {
+    $("#interact-screen").fadeOut(500);
+
+    playOpening();
+}
+
+function playOpening() {
+    if(audio.theme_opening.paused)
+        audio.theme_opening.play();
 }
 
 function startGame() {
-    // $("#story").fadeOut(500);
+    $("#main-screen").fadeOut(250);
 
+    initializeAudio();
     loadTextures();
 
     frameNum = 0;
@@ -26,6 +34,20 @@ function stopGame() {
 // https://www.reddit.com/r/pokemonzetaomicron/comments/1xbnoi/black_white_texture_pack_updated/
 
 
-function transitionValue(start, end, frame, maxFrames) {
+function transitionValue(start, end, frame = frameNum, maxFrames = maxFrameNum) {
     return start + (frame / maxFrames) * (end - start);
+}
+
+function playClickSound() {
+    if(!audio.click.paused)
+        audio.click.currentTime = 0;
+    else
+        audio.click.play();
+}
+
+function playInvalidClickSound() {
+    if(!audio.click_invalid.paused)
+        audio.click_invalid.currentTime = 0;
+    else
+        audio.click_invalid.play();
 }

@@ -9,21 +9,11 @@ var maxFrameNum = 0;
 var keepTrackOfFrame = false;
 var isIdle = false;
 var inTransition = false;
-var charIndex = 0; // per char, index in array
-var lineIndex = 0; // per line
 
 var CMODE = DRAWMODE.LOADING.BASE; // mode of the game
 var NMODE = -1;
 var bgMode = -1;
-
-var GAME = {
-    player: {
-        hp: Math.floor(Math.random() * 300),
-        exp: Math.random()
-    }, opponent: {
-        hp: Math.floor(Math.random() * 1000)
-    }
-}
+var lineIndex = 0;
 
 
 var textures = {
@@ -32,6 +22,9 @@ var textures = {
     overlayMessageBox: null,
 
     hoodedFigureTP: null,
+    featureFigure: null,
+    strategyScene: null,
+
     hoodedFigure: null,
 
     defaultBG: null,
@@ -54,6 +47,17 @@ var textures = {
     battlePlayerBox: null
 };
 
+var audio = {
+    theme_opening: null,
+    theme_battle: null,
+
+    click: null,
+    click_invalid: null,
+
+    story_lightning: null,
+    story_crash: null
+};
+
 var onLoadedFunction = function() {
     numLoaded++;
 };
@@ -62,6 +66,17 @@ var maxNumLoaded = Object.keys(textures).length;
 function loaded() { return numLoaded + "/" + maxNumLoaded; }
 
 
+
+function initializeAudio() {
+    audio.theme_opening = document.getElementById("theme-opening");
+    audio.theme_battle = document.getElementById("theme-battle");
+
+    audio.click = document.getElementById("click");
+    audio.click_invalid = document.getElementById("click-invalid");
+
+    audio.story_lightning = document.getElementById("story-lightning");
+    audio.story_crash = document.getElementById("story-crash");
+}
 
 function loadTextures() {
     try {
@@ -93,7 +108,16 @@ function loadTextures() {
 
         textures.hoodedFigureTP = new Image();
         textures.hoodedFigureTP.onload = onLoadedFunction;
-        textures.hoodedFigureTP.src = "./img/story_hood_tp.png";
+        textures.hoodedFigureTP.src = "./img/stills/story_hood_tp.png";
+
+        textures.featureFigure = new Image();
+        textures.featureFigure.onload = onLoadedFunction;
+        textures.featureFigure.src = "./img/stills/story_feature.png"
+
+        textures.strategyScene = new Image();
+        textures.strategyScene.onload = onLoadedFunction;
+        textures.strategyScene.src = "./img/stills/story_strategy.png";
+
 
         textures.hoodedFigure = new Image();
         textures.hoodedFigure.onload = onLoadedFunction;
@@ -170,7 +194,13 @@ function handleEndTransition() {
 
     console.log("end transition " + CMODE + " " + NMODE);
 
-    CMODE = NMODE;
+    if(CMODE != DRAWMODE.STORY_FEATURE && CMODE != DRAWMODE.STORY_HOOD_SPOTLIGHT_2 && CMODE != DRAWMODE.STORY_STRATEGY)
+        CMODE = NMODE == -10 ? CMODE : NMODE;
+    
+    if(NMODE == -10) {
+        if(GAME.messageBox.show)
+            GAME.messageBox.show = false;
+    }
 }
 
 function setTrackFrame(max, next = null) {
@@ -240,13 +270,48 @@ function drawFrame() {
                 ctx_top.restore();
                 ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
                 ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
+
+                audio.theme_opening.volume = transitionValue(1.0, 0.0);
             }
 
             if(!keepTrackOfFrame && CMODE == DRAWMODE.LOADING.IDLE_BLACK)
-                setTrackFrame(2.0 * FPS, DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN)
+                setTrackFrame(2.0 * FPS, DRAWMODE.STORY_LIGHTNING.IDLE);
+        } else if(BASEMODE == DRAWMODE.STORY_LIGHTNING.BASE) {
+            if(bgMode != BASEMODE) {
+                changeBackground(null, "black");
+                lineIndex = 0;
+
+                // stop opening theme
+                if(!audio.theme_opening.paused)
+                    audio.theme_opening.pause();
+
+                // play sound
+                audio.story_lightning.play();
+            }
+
+            // fight message box
+            drawFightMessageBox(SCRIPT.STORY_LIGHTNING[lineIndex][0], SCRIPT.STORY_LIGHTNING[lineIndex][1], "center", "white", "rgba(127,127,127,0.2)");
+
+            // press anywhere
+            drawText_anywhere();
+            
+            if(CMODE == DRAWMODE.STORY_LIGHTNING.TRANSITION_FADEOUT) {
+                if(!keepTrackOfFrame)
+                    setTrackFrame(1.0 * FPS, DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN);
+                
+                ctx_top.restore();
+                ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
+                ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
+
+                ctx_bot.restore();
+                ctx_bot.fillStyle = "rgba(0,0,0," + transitionValue(0.0, 1.0, frameNum, maxFrameNum) + ")";
+                ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
+            }
         } else if(BASEMODE == DRAWMODE.STORY_HOOD_TP.BASE) {
-            if(bgMode != BASEMODE)
-                changeBackground("./img/story_hood_tp.png", "black");
+            if(bgMode != BASEMODE) {
+                changeBackground("./img/stills/story_hood_tp.png", "black");
+                lineIndex = 0;
+            }
 
             ctx_top.restore();
             if(CMODE != DRAWMODE.STORY_HOOD_TP.IDLE_BLACK) {
@@ -262,7 +327,10 @@ function drawFrame() {
                 ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
 
                 // message box
-                drawFightMessageBox("text 1", "text 2", "center", "#ffffff", "rgba(127,127,127,0.2)");
+                drawFightMessageBox(SCRIPT.STORY_HOOD_TP[lineIndex][0], SCRIPT.STORY_HOOD_TP[lineIndex][1], "center", "#ffffff", "rgba(127,127,127,0.2)");
+
+                // press anywhere
+                drawText_anywhere();
             }
 
             if(CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN || CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEOUT) {
@@ -275,16 +343,20 @@ function drawFrame() {
                 ctx_top.fillStyle = "rgba(0,0,0," + transitionValue(CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN ? 1.0 : 0.0, CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN ? 0.0 : 1.0, frameNum, maxFrameNum) + ")";
                 ctx_top.fillRect(0, 0, canvas_top.width, canvas_top.height);
 
+                ctx_bot.restore();
+                ctx_bot.fillStyle = "rgba(0,0,0," + transitionValue(CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN ? 1.0 : 0.0, CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN ? 0.0 : 1.0, frameNum, maxFrameNum) + ")";
+                ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
+
                 changeBackground(null, "rgba(0,0,0," + transitionValue(CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN ? 1.0 : 0.5, CMODE == DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEIN ? 0.5 : 1.0, frameNum, maxFrameNum) + ")");
             }
 
-            if(!keepTrackOfFrame && CMODE == DRAWMODE.STORY_HOOD_TP.IDLE)
-                setTrackFrame(3.0 * FPS, DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEOUT);
             else if(!keepTrackOfFrame && CMODE == DRAWMODE.STORY_HOOD_TP.IDLE_BLACK)
-                setTrackFrame(3.0 * FPS, DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1);
-        } else if(BASEMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE || BASEMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2.BASE) {
-            if(bgMode != BASEMODE)
-                changeBackground(null, "#3a3a3a");
+                setTrackFrame(3.0 * FPS, DRAWMODE.STORY_HOOD_SPOTLIGHT_1.TRANSITION_FADEIN);
+        } else if(BASEMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE || BASEMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2) {
+            if(bgMode != BASEMODE) {
+                lineIndex = 0;
+                isIdle = false;
+            }
             
             ctx_top.restore();
             ctx_top.fillStyle = "#ffffff";
@@ -314,65 +386,133 @@ function drawFrame() {
             if(CMODE != DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE || CMODE != DRAWMODE.STORY_HOOD_SPOTLIGHT_2.BASE)
                 drawText_anywhere();
 
-            if(!keepTrackOfFrame && CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.BASE)
-                setTrackFrame(2.0 * FPS, DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1);
+            if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.TRANSITION_FADEIN) {
+                if(!keepTrackOfFrame)
+                    setTrackFrame(0.3 * FPS, DRAWMODE.STORY_HOOD_SPOTLIGHT_1.DIALOGUE);
+                
+                ctx_top.restore();
+                ctx_top.fillStyle = "black";
+                ctx_bot.restore();
+                ctx_bot.fillStyle = "black";
+
+                var h = transitionValue(canvas_top.height + canvas_bot.height, 0, frameNum, maxFrameNum);
+
+                if(h > canvas_bot.height)
+                    ctx_top.fillRect(0, canvas_top.height - (h - canvas_bot.height), canvas_top.width, h - canvas_bot.height);
+                
+                ctx_bot.fillRect(
+                    0,
+                    h <= canvas_bot.height ? canvas_bot.height - h : 0,
+                    canvas_bot.width,
+                    h <= canvas_bot.height ? h : canvas_bot.height);
+                
+                var c = transitionValue(0, 58, frameNum, maxFrameNum);
+                changeBackground(null, "rgb(" + c + "," + c + "," + c + ")");
+            } else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2) {
+                if(!isIdle && !keepTrackOfFrame) {
+                    isIdle = true;
+                    setTrackFrame(1.0 * FPS);
+                }
+
+                if(keepTrackOfFrame) {
+                    var c = transitionValue(0, 58);
+                    changeBackground(null, "rgba(" + c + "," + c + "," + c + "," + transitionValue(0.5, 1.0) + ")");
+                }
+            }
 
             // overlay message
-            if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1)
-                drawOverlayMessageBox("text1", "text2");
-            else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE2)
-                drawOverlayMessageBox("text3", "text4");
-            
-            else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE1)
-                drawOverlayMessageBox("text1", "text2");
-            else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE2)
-                drawOverlayMessageBox("text3", "text4");
-        } else if(BASEMODE == DRAWMODE.STORY_FEATURE.BASE) {
-            if(bgMode != BASEMODE)
-                changeBackground(null, "black");
+            if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.DIALOGUE || CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2)
+                drawOverlayMessageBox(
+                    CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.DIALOGUE ? SCRIPT.STORY_HOOD_SPOTLIGHT_1[lineIndex][0] : SCRIPT.STORY_HOOD_SPOTLIGHT_2[lineIndex][0],
+                    CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.DIALOGUE ? SCRIPT.STORY_HOOD_SPOTLIGHT_1[lineIndex][1] : SCRIPT.STORY_HOOD_SPOTLIGHT_2[lineIndex][1]);
+        } else if(BASEMODE == DRAWMODE.STORY_FEATURE) {
+            if(bgMode != BASEMODE) {
+                changeBackground("./img/stills/story_feature.png", "#3a3a3a");
+                lineIndex = 0;
+                isIdle = false;
+            }
             
             // figure
-            drawText_dev("insert sir calvin");
-
-            // bottom screen
-
-            // press anywhere
-            drawText_anywhere();
+            ctx_top.restore();
+            ctx_top.drawImage(textures.featureFigure, 0, 0, canvas_top.width, canvas_top.height);
 
             // overlay mesage
-            if(CMODE == DRAWMODE.STORY_FEATURE.BASE)
-                drawFightMessageBox("Calvin Sia", "text2", "center", "white", "rgba(255,255,255,0.3)");
-            else if(CMODE == DRAWMODE.STORY_FEATURE.LINE1)
-                drawFightMessageBox("text1", "text2", "left", "white", "rgba(255,255,255,0.3)");
-            else if(CMODE == DRAWMODE.STORY_FEATURE.LINE2)
-                drawFightMessageBox("text3", "text4", "left", "white", "rgba(255,255,255,0.3)");
-        } else if(CMODE == DRAWMODE.STORY_HUDDLE) {
-            if(bgMode != CMODE)
-                changeBackground(null, "black");
+            drawOverlayMessageBox(
+                SCRIPT.STORY_FEATURE[lineIndex][0],
+                SCRIPT.STORY_FEATURE[lineIndex][1],
+                lineIndex == 0 ? "center" : "left");
 
-            // figure
-            drawText_dev("insert huddle");
-            
+            // bottom fill
+            ctx_bot.restore();
+            ctx_bot.fillStyle = "#211632";
+            ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
+
             // press anywhere
             drawText_anywhere();
+
+            // background
+            if(!isIdle && !keepTrackOfFrame) {
+                isIdle = true;
+                setTrackFrame(1.0 * FPS);
+            }
+            
+            if(keepTrackOfFrame) {
+                var c = transitionValue(58, 0);
+                changeBackground(null, "rgba(" + c + "," + c + "," + c + "," + transitionValue(1.0, 0.5) + ")");
+            }
+        } else if(CMODE == DRAWMODE.STORY_STRATEGY) {
+            if(bgMode != CMODE) {
+                changeBackground("./img/stills/story_strategy.png", "3a3a3a");
+                lineIndex = 0;
+                isIdle = false;
+            }
+
+            // figure
+            ctx_top.restore();
+            ctx_top.drawImage(textures.strategyScene, 0, 0, canvas_top.width, canvas_top.height);
             
             // overlay message
-            drawFightMessageBox("text1", "text2", "center", "white", "rgba(255,255,255,0.3)");
+            drawFightMessageBox(SCRIPT.STORY_STRATEGY[lineIndex][0], SCRIPT.STORY_STRATEGY[lineIndex][1], "left", "white", "rgba(0,0,0,0.5)");
+
+            // bottom fill
+            ctx_bot.restore();
+            ctx_bot.fillStyle = "#534e5d";
+            ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
+
+            // press anywhere
+            drawText_anywhere();
+
+            // background
+            if(!isIdle && !keepTrackOfFrame) {
+                isIdle = true;
+                setTrackFrame(1.0 * FPS);
+            }
+
+            if(keepTrackOfFrame) {
+                var c = transitionValue(58, 0);
+                changeBackground(null, "rgba(" + c + "," + c + "," + c + "," + transitionValue(1.0, 0.5) + ")");
+            }
         } else if(CMODE == DRAWMODE.STORY_CRASH) {
-            if(bgMode != CMODE)
+            if(bgMode != CMODE) {
                 changeBackground(null, "black");
+
+                audio.story_crash.play();
+            }
             
             // figure
             drawText_dev("insert crash");
 
+            // overlay message
+            drawFightMessageBox("text1", "text2", "center", "white", "rgba(255,255,255,0.2)")
+
             // press anywhere
             drawText_anywhere();
-
-            // overlay message
-            drawFightMessageBox("text1", "text2", "center", "white", "rgba(255,255,255,0.3)")
         } else if(CMODE == DRAWMODE.STORY_APPEAR) {
-            if(bgMode != CMODE)
+            if(bgMode != CMODE) {
                 changeBackground(null, "black");
+                lineIndex = 0;
+            }
+
             // figure
             drawText_dev("insert appear");
 
@@ -380,13 +520,16 @@ function drawFrame() {
             drawText_anywhere();
 
             // overlay message
-            drawFightMessageBox("text1", "text2", "center", "white", "rgba(255,255,255,0.3)")
+            drawFightMessageBox(SCRIPT.STORY_APPEAR[lineIndex][0], SCRIPT.STORY_APPEAR[lineIndex][1], "left", "white", "rgba(255,255,255,0.2)")
         } else if(CMODE == DRAWMODE.BATTLE_VS) {
             // dev
             drawText_dev("dev todo");
         } else if(BASEMODE >= DRAWMODE.BATTLE_DEFAULT && BASEMODE <= DRAWMODE.BATTLE_FOCUS_FOE) {
             if(bgMode != BASEMODE)
                 changeBackground("./img/game/elite8_bg.png", "rgba(0,0,0,0.5)");
+            
+            if(audio.theme_battle.paused)
+                audio.theme_battle.play();
 
             // background
             ctx_top.restore();
@@ -403,25 +546,27 @@ function drawFrame() {
             drawPlayerInfo();
 
             // fight message box
-            drawFightMessageBox("What will you do?");
+            if(GAME.messageBox.show)
+                drawFightMessageBox(GAME.messageBox.text[0], GAME.messageBox.text[1]);
 
+            // question box
+            if(GAME.questionBox.show)
+                drawQuestionBox();
 
             // bottom screen
             ctx_bot.restore();
-            if(CMODE == DRAWMODE.BATTLE_DEFAULT)
+            if(CMODE == DRAWMODE.BATTLE_DEFAULT || CMODE == DRAWMODE.BATTLE_FOCUS_FOE || CMODE == DRAWMODE.BATTLE_FOCUS_PLAYER)
                 ctx_bot.drawImage(textures.battleBGBase, 0, 0, canvas_bot.width, canvas_bot.height);
-            else if(CMODE == DRAWMODE.BATTLE_MAIN)
+            else if(CMODE == DRAWMODE.BATTLE_MAIN) {
                 ctx_bot.drawImage(textures.battleBGMain, 0, 0, canvas_bot.width, canvas_bot.height);
-            else if(CMODE == DRAWMODE.BATTLE_FIGHT)
+
+                drawTime();
+            } else if(CMODE == DRAWMODE.BATTLE_FIGHT) {
                 ctx_bot.drawImage(textures.battleBGFight, 0, 0, canvas_bot.width, canvas_bot.height);
-            
-            // time
-            drawTime();
+
+                drawTime();
+            }
         }
-
-        // drawMessageBox();
-
-        // drawBottomBackground();
     } catch(error) {
         console.log(error);
     }
@@ -434,26 +579,54 @@ function handleClick(e) {
 
     if(x < 0 || x > canvas_bot.offsetWidth || y < 0 || y > canvas_bot.offsetWidth / 4 * 3) return;
 
-    if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE1)
-        CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE2;
-    else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.LINE2)
-        CMODE = DRAWMODE.STORY_FEATURE.BASE;
-    else if(CMODE == DRAWMODE.STORY_FEATURE.BASE)
-        CMODE = DRAWMODE.STORY_FEATURE.LINE1;
-    else if(CMODE == DRAWMODE.STORY_FEATURE.LINE1)
-        CMODE = DRAWMODE.STORY_FEATURE.LINE2;
-    else if(CMODE == DRAWMODE.STORY_FEATURE.LINE2)
-        CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE1;
-    else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE1)
-        CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE2;
-    else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2.LINE2)
-        CMODE = DRAWMODE.STORY_HUDDLE;
-    else if(CMODE == DRAWMODE.STORY_HUDDLE)
-        CMODE = DRAWMODE.STORY_CRASH;
-    else if(CMODE == DRAWMODE.STORY_CRASH)
+    if(CMODE == DRAWMODE.STORY_LIGHTNING.IDLE) {
+        playClickSound();
+        if(lineIndex == 2)
+            CMODE = DRAWMODE.STORY_LIGHTNING.TRANSITION_FADEOUT;
+        else
+            lineIndex++;
+    } else if(CMODE == DRAWMODE.STORY_HOOD_TP.IDLE) {
+        playClickSound();
+        if(lineIndex == 1)
+            CMODE = DRAWMODE.STORY_HOOD_TP.TRANSITION_FADEOUT;
+        else
+            lineIndex++;
+    } else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_1.DIALOGUE) {
+        playClickSound();
+        if(lineIndex == 5)
+            CMODE = DRAWMODE.STORY_FEATURE;
+        else
+            lineIndex++;
+    } else if(CMODE == DRAWMODE.STORY_FEATURE) {
+        playClickSound();
+        if(lineIndex == 2)
+            CMODE = DRAWMODE.STORY_HOOD_SPOTLIGHT_2;
+        else
+            lineIndex++;
+    } else if(CMODE == DRAWMODE.STORY_HOOD_SPOTLIGHT_2) {
+        playClickSound();
+        if(lineIndex == 4)
+            CMODE = DRAWMODE.STORY_STRATEGY;
+        else
+            lineIndex++;
+    } else if(CMODE == DRAWMODE.STORY_STRATEGY) {
+        playClickSound();
+        if(lineIndex == 2)
+            CMODE = DRAWMODE.STORY_CRASH;
+        else
+            lineIndex++;
+    } else if(CMODE == DRAWMODE.STORY_CRASH) {
+        playClickSound();
         CMODE = DRAWMODE.STORY_APPEAR;
-    else if(CMODE == DRAWMODE.STORY_APPEAR)
-        CMODE = DRAWMODE.BATTLE_DEFAULT;
+    } else if(CMODE == DRAWMODE.STORY_APPEAR) {
+        playClickSound();
+        if(lineIndex == 2)
+            CMODE = DRAWMODE.BATTLE_MAIN;
+        else
+            lineIndex++;
+    } else if(CMODE >= DRAWMODE.BATTLE_DEFAULT && CMODE <= DRAWMODE.BATTLE_FOCUS_FOE) {
+        battleClick(x / canvas_bot.offsetWidth * textures.battleBGBase.width, y / canvas_bot.offsetHeight * textures.battleBGBase.height);
+    }
 }
 
 
@@ -465,5 +638,5 @@ function changeBackground(url, color) {
     bgMode = Math.floor(CMODE);
 
     if(url) $("#game-screen-background").css("background-image", "url(\"" + url + "\")");
-    $("#game-screen-background-overlay").css("background-color", color);
+    if(color) $("#game-screen-background-overlay").css("background-color", color);
 }
