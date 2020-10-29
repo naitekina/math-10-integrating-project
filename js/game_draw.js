@@ -276,26 +276,6 @@ function drawFightMessageBox(text1, text2 = "", textAlign = "left", textColor = 
 }
 
 
-function drawBottomBackground() {
-    ctx_bot.restore();
-
-    if(CMODE == DRAWMODE.BLACK) {
-        ctx_bot.fillStyle = "#000000";
-        ctx_bot.fillRect(0, 0, canvas_bot.width, canvas_bot.height);
-    } else if(CMODE == DRAWMODE.DEFAULT) {
-        ctx_bot.drawImage(textures.defaultBG, 0, 0, canvas_bot.width, canvas_bot.height);
-    } else if(CMODE == DRAWMODE.BASE) {
-        ctx_bot.drawImage(textures.battleBGBase, 0, 0, canvas_bot.width, canvas_bot.height);
-        drawTime();
-    } else if(CMODE == DRAWMODE.MAIN) {
-        ctx_bot.drawImage(textures.battleBGMain, 0, 0, canvas_bot.width, canvas_bot.height);
-        drawTime();
-    } else if(CMODE == DRAWMODE.FIGHT) {
-        ctx_bot.drawImage(textures.battleBGFight, 0, 0, canvas_bot.width, canvas_bot.height);
-        drawTime();
-    }
-}
-
 function drawTime() {
     var d = new Date();
     var H = d.getHours().toString();

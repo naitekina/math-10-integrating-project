@@ -8,6 +8,12 @@ const DRAWMODE = {
         IDLE_BLACK: 0.3,
     },
 
+    STORY_LIGHTNING: {
+        BASE: 9,
+        BOLT: 9.1,
+        IDLE: 9.2,
+        TRANSITION_FADEOUT: 9.3
+    },
     STORY_HOOD_TP: {
         BASE: 10,
         TRANSITION_FADEIN: 10.1,
@@ -17,20 +23,12 @@ const DRAWMODE = {
     },
     STORY_HOOD_SPOTLIGHT_1: {
         BASE: 11,
-        LINE1: 11.1,
-        LINE2: 11.2
+        TRANSITION_FADEIN: 11.1,
+        DIALOGUE: 11.2
     },
-    STORY_FEATURE: {
-        BASE: 12,
-        LINE1: 12.1,
-        LINE2: 12.2
-    },
-    STORY_HOOD_SPOTLIGHT_2: {
-        BASE: 13,
-        LINE1: 13.1,
-        LINE2: 13.2
-    },
-    STORY_HUDDLE: 14,
+    STORY_FEATURE: 12,
+    STORY_HOOD_SPOTLIGHT_2: 13,
+    STORY_STRATEGY: 14,
     STORY_CRASH: 15,
     STORY_APPEAR: 16,
 
@@ -48,16 +46,44 @@ const DRAWMODE = {
 };
 
 const SCRIPT = {
+    STORY_LIGHTNING: [
+        ["As you wake up,", "all you see is darkness."],
+        ["You remember nothing but", "the loud thunder strike"],
+        ["before blacking out.", ""]
+    ],
+    STORY_HOOD_TP: [
+        ["Suddenly, an unknown presence", "appears in front of you."],
+        ["You realize that you have", "entered another dimension."]
+    ],
     STORY_HOOD_SPOTLIGHT_1: [
-        "text1",
-        "text2",
-        "text3",
-        "text4"
-    ], STORY_FEATURE: [
-        "text1",
-        "text2",
-        "text3",
-        "text4"
+        ["Welcome, young travelers.", "Time is of the essence,"],
+        ["and I have much to explain.", ""],
+        ["You have been summoned into", "the realm of the Sia Region,"],
+        ["and I need your powers", "to bring back the light."],
+        ["Deep into the Sia Region", "exists a castle inhabited"],
+        ["by an evil presence...", ""]
+    ],
+    STORY_FEATURE: [
+        ["Calvin Sia", "Overload and Supreme Leader"],
+        ["He is no presence to reckon", "with as he is slowly consuming"],
+        ["the Sia Region with the", "mastery of his dark techniques."]
+    ],
+    STORY_HOOD_SPOTLIGHT_2: [
+        ["However, young travelers, you", "are the chosen ones destined"],
+        ["to bring back the light", "in the Sia Region."],
+        ["We may never know when", "he will strike, but..."],
+        ["You are all gifted with", "special powers of which is"],
+        ["humanity's last hope.", ""]
+    ],
+    STORY_STRATEGY: [
+        ["\"Don't you think something", "smells fishy here?\""],
+        ["\"We are humanity's last hope,", "what is he saying?\""],
+        ["\"Wait, where did he g-\"", ""]
+    ],
+    STORY_APPEAR: [
+        ["MWAHAHAHAHAHAA!!!", ""],
+        ["\"It is I, Overlord and", "Supreme Leader Calvin!\""],
+        ["\"Get ready to meet your demise!\"", ""]
     ]
 };
 
@@ -85,35 +111,42 @@ const POSITIONS = {
                 posT: 128
             }
         }
-    }, overlayMessageBox: {
+    },
+    overlayMessageBox: {
         text: {
             marginLR: 32,
             relPosT1: -4,
             relPosT2: 24
         }
-    }, fightMessageBox: {
+    },
+    fightMessageBox: {
         posB_Top: 100,
         height: 88,
         border: {
             height: 2
-        }, text: {
+        },
+        text: {
             marginLR: 16,
             relPosT1: -8,
             relPosT2: 24
         }
-    }, battleFoeBox: {
+    },
+    battleFoeBox: {
         posL: 0,
         posT: 56,
         name: {
             relPosL: 24,
             relPosT: -4
-        }, sex: {
+        },
+        sex: {
             relPosL: 152,
             relPosT: -6
-        }, level: {
+        },
+        level: {
             relPosL: 186,
             relPosT: -4
-        }, hpBar: {
+        },
+        hpBar: {
             relPosL: 88,
             // relPosR_L: 184,
             relPosT: 18,
@@ -121,50 +154,61 @@ const POSITIONS = {
             w: 96,
             h: 4
         }
-    }, battleFoeBase: {
+    },
+    battleFoeBase: {
         posR: -16,
         posT: 96,
         scale: 0.5
-    }, battleFoe: {
+    },
+    battleFoe: {
         posR: 28,
         posT: 0,
         scale: 1 / 3 * 2
-    }, battlePlayerBox: {
+    },
+    battlePlayerBox: {
         posR: 0,
         posT: 184,
         name: {
             relPosL: 24,
             relPosT: -4
-        }, level: {
+        },
+        level: {
             relPosL: 178,
             relPosT: -4
-        }, hpBar: {
+        },
+        hpBar: {
             relPosL: 112,
             relPosT: 18,
             w: 96,
             h: 4
-        }, hpNum: {
+        },
+        hpNum: {
             relPosT: 24,
             hp: {
                 relPosL_End: 160
-            }, total: {
+            },
+            total: {
                 relPosL: 176
             }
-        }, expBar: {
+        },
+        expBar: {
             relPosL: 64,
             relPosT: 46,
             w: 160,
             h: 2
         }
-    }, battlePlayerBase: {
+    },
+    battlePlayerBase: {
         posL: -80,
         posB: 140,
         scale: 1.0
-    }, battlePlayer: {
+    },
+    battlePlayer: {
         posL: 0,
         posB: 0,
         scale: 1 / 3 * 2
-    }, time: {
+    },
+    time: {
         posL: 24,
         posT: 20
     }
@@ -175,7 +219,8 @@ const GAMEDATA = {
         NAME: "Group Four",
         LEVEL: 25,
         HPMAX: 300
-    }, OPPONENT: {
+    },
+    OPPONENT: {
         NAME: "Sir Calvin",
         LEVEL: 100,
         HPMAX: 1000
