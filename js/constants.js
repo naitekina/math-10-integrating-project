@@ -84,7 +84,35 @@ const SCRIPT = {
         ["MWAHAHAHAHAHAA!!!", ""],
         ["\"It is I, Overlord and", "Supreme Leader Calvin!\""],
         ["\"Get ready to meet your demise!\"", ""]
-    ]
+    ],
+    BATTLE: {
+        notAllowed: ["You can't do that here!", ""],
+        moves: {
+            player: {
+                used: "Group Four used",
+                names: [
+                    "Clarification",
+                    "Thank you sir",
+                    "Cringe at joke",
+                    "Laugh at joke"
+                ]
+            },
+            opponent: {
+                used: "Sir Calvin used",
+                names: [
+                    "Math question",
+                    "Meme",
+                    "Problem Set",
+                    "Oral Exam",
+                    "Kahoot Session"
+                ]
+            }
+        }
+    }
+};
+
+const QUESTIONS = {
+    //
 };
 
 
@@ -158,12 +186,26 @@ const POSITIONS = {
     battleFoeBase: {
         posR: -16,
         posT: 96,
-        scale: 0.5
+        scale: 0.5,
+        focus: {
+            foe: {
+                posR: 32,
+                posT: 128,
+                scale: 0.75
+            }
+        }
     },
     battleFoe: {
         posR: 28,
         posT: 0,
-        scale: 1 / 3 * 2
+        scale: 1 / 3 * 2,
+        focus: {
+            foe: {
+                posR: 96,
+                posT: -16,
+                scale: 1 / 3 * 2 / 2 * 3
+            }
+        }
     },
     battlePlayerBox: {
         posR: 0,

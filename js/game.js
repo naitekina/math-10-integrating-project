@@ -10,19 +10,10 @@ var keepTrackOfFrame = false;
 var isIdle = false;
 var inTransition = false;
 
-var CMODE = DRAWMODE.LOADING.BASE; // mode of the game
+var CMODE = DRAWMODE.BATTLE_MAIN; // mode of the game
 var NMODE = -1;
 var bgMode = -1;
 var lineIndex = 0;
-
-var GAME = {
-    player: {
-        hp: Math.floor(Math.random() * 300),
-        exp: Math.random()
-    }, opponent: {
-        hp: Math.floor(Math.random() * 1000)
-    }
-}
 
 
 var textures = {
@@ -182,7 +173,12 @@ function handleEndTransition() {
     console.log("end transition " + CMODE + " " + NMODE);
 
     if(CMODE != DRAWMODE.STORY_FEATURE && CMODE != DRAWMODE.STORY_HOOD_SPOTLIGHT_2 && CMODE != DRAWMODE.STORY_STRATEGY)
-        CMODE = NMODE;
+        CMODE = NMODE == -10 ? CMODE : NMODE;
+    
+    if(NMODE == -10) {
+        if(GAME.messageBox.show)
+            GAME.messageBox.show = false;
+    }
 }
 
 function setTrackFrame(max, next = null) {
@@ -515,20 +511,26 @@ function drawFrame() {
             drawPlayerInfo();
 
             // fight message box
-            drawFightMessageBox("What will you do?");
+            if(GAME.messageBox.show)
+                drawFightMessageBox(GAME.messageBox.text[0], GAME.messageBox.text[1]);
 
+            // question box
+            if(GAME.questionBox.show)
+                drawQuestionBox();
 
             // bottom screen
             ctx_bot.restore();
-            if(CMODE == DRAWMODE.BATTLE_DEFAULT)
+            if(CMODE == DRAWMODE.BATTLE_DEFAULT || CMODE == DRAWMODE.BATTLE_FOCUS_FOE || CMODE == DRAWMODE.BATTLE_FOCUS_PLAYER)
                 ctx_bot.drawImage(textures.battleBGBase, 0, 0, canvas_bot.width, canvas_bot.height);
-            else if(CMODE == DRAWMODE.BATTLE_MAIN)
+            else if(CMODE == DRAWMODE.BATTLE_MAIN) {
                 ctx_bot.drawImage(textures.battleBGMain, 0, 0, canvas_bot.width, canvas_bot.height);
-            else if(CMODE == DRAWMODE.BATTLE_FIGHT)
+
+                drawTime();
+            } else if(CMODE == DRAWMODE.BATTLE_FIGHT) {
                 ctx_bot.drawImage(textures.battleBGFight, 0, 0, canvas_bot.width, canvas_bot.height);
-            
-            // time
-            drawTime();
+
+                drawTime();
+            }
         }
     } catch(error) {
         console.log(error);
@@ -579,6 +581,8 @@ function handleClick(e) {
             CMODE = DRAWMODE.BATTLE_DEFAULT;
         else
             lineIndex++;
+    } else if(CMODE >= DRAWMODE.BATTLE_DEFAULT && CMODE <= DRAWMODE.BATTLE_FOCUS_FOE) {
+        battleClick(x / canvas_bot.offsetWidth * textures.battleBGBase.width, y / canvas_bot.offsetHeight * textures.battleBGBase.height);
     }
 }
 
