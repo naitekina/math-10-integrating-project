@@ -26,6 +26,6 @@ function stopGame() {
 // https://www.reddit.com/r/pokemonzetaomicron/comments/1xbnoi/black_white_texture_pack_updated/
 
 
-function transitionValue(start, end, frame, maxFrames) {
+function transitionValue(start, end, frame = frameNum, maxFrames = maxFrameNum) {
     return start + (frame / maxFrames) * (end - start);
 }
